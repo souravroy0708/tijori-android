@@ -1,0 +1,18 @@
+.gradle/
+build/
+app/build/
+local.properties
+.idea/
+*.iml
+.DS_Store
+captures/
+.cxx/
+*.keystore
+*.jks
+
+dist/
+*.b64
+secrets.env
+
+# Firebase config (provided to CI as a secret)
+app/google-services.json
