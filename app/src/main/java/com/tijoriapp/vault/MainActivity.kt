@@ -10,7 +10,6 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.WindowManager
-import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -20,12 +19,13 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.tijoriapp.vault.data.EmergencyKitExporter
-import com.tijoriapp.vault.data.ShamirSecretSharing
+import com.tijoriapp.vault.crypto.ShamirSecretSharing
 import com.tijoriapp.vault.ui.Lang
 import com.tijoriapp.vault.ui.MainShell
 import com.tijoriapp.vault.ui.PhoneActions
@@ -35,7 +35,7 @@ import com.tijoriapp.vault.ui.UnlockScreen
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class MainActivity : ComponentActivity(), DefaultLifecycleObserver {
+class MainActivity : FragmentActivity(), DefaultLifecycleObserver {
 
     lateinit var app: AppController
     private var lastBackgroundEpoch = 0L
@@ -92,7 +92,7 @@ class MainActivity : ComponentActivity(), DefaultLifecycleObserver {
             statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
             navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
         )
-        super.onCreate(savedInstanceState)
+        super<FragmentActivity>.onCreate(savedInstanceState)
         app = AppController(applicationContext, lifecycleScope)
         ProcessLifecycleOwner.get().lifecycle.addObserver(this)
 

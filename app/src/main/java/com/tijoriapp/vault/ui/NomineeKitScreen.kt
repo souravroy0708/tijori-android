@@ -47,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tijoriapp.vault.AppController
+import com.tijoriapp.vault.AppTab
 import com.tijoriapp.vault.crypto.ShamirSecretSharing
 import java.security.SecureRandom
 

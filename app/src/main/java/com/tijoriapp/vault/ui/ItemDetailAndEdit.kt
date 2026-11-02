@@ -335,10 +335,10 @@ fun AddOrEditItemScreen(
         mutableStateOf(existingItem?.title ?: template?.title ?: "")
     }
     var selectedRoom by remember {
-        mutableStateOf(existingItem?.room ?: template?.recommendedRoom ?: RoomType.EVERYDAY)
+        mutableStateOf(existingItem?.room ?: template?.room ?: RoomType.EVERYDAY)
     }
     var selectedType by remember {
-        mutableStateOf(existingItem?.type ?: template?.itemType ?: ItemType.CUSTOM)
+        mutableStateOf(existingItem?.type ?: template?.type ?: ItemType.CUSTOM)
     }
 
     // Editable fields: list of (FieldKind, Label, Value)
@@ -350,8 +350,8 @@ fun AddOrEditItemScreen(
                     add(FieldEditState(f.kind, f.customLabel.ifBlank { f.kind.labelEn }, decrypted))
                 }
             } else if (template != null) {
-                template.defaultFields.forEach { (kind, label) ->
-                    add(FieldEditState(kind, label, ""))
+                template.fields.forEach { def ->
+                    add(FieldEditState(def.kind, def.label, ""))
                 }
             } else {
                 add(FieldEditState(FieldKind.USERNAME, "Username / ID", ""))
@@ -458,7 +458,7 @@ fun AddOrEditItemScreen(
             }
 
             // Card PIN Hint Notice (Spec Page 3 & 7)
-            if (selectedType == ItemType.CARD || selectedType == ItemType.UPI) {
+            if (selectedType == ItemType.CARD) {
                 item {
                     Row(
                         Modifier

@@ -141,20 +141,25 @@ fun SmallPill(
     gold: Boolean = false,
     emerald: Boolean = false,
     coral: Boolean = false,
-    onClick: () -> Unit,
+    color: Color? = null,
+    bg: Color? = null,
+    onClick: (() -> Unit)? = null,
 ) {
-    val (bg, fg) = when {
+    val (presetBg, presetFg) = when {
         gold -> VaultGoldSoft to VaultGoldDark
         emerald -> VaultEmeraldSoft to Color(0xFF065F46)
         coral -> VaultCoralSoft to Color(0xFF991B1B)
         else -> Paper2 to TextMain
     }
+    // Explicit color/bg win over the preset flags (used as status chips)
+    val fg = color ?: presetFg
+    val bgColor = bg ?: if (color != null) color.copy(alpha = 0.15f) else presetBg
     Box(
         Modifier
             .heightIn(min = 36.dp)
             .clip(RoundedCornerShape(50))
-            .background(bg)
-            .clickable(role = Role.Button, onClick = onClick)
+            .background(bgColor)
+            .then(if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier)
             .padding(horizontal = 14.dp, vertical = 7.dp),
         contentAlignment = Alignment.Center,
     ) {

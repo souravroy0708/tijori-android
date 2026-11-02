@@ -76,6 +76,31 @@ class KeystoreManager(private val context: Context) {
     fun makeDecryptCryptoObject(iv: ByteArray): BiometricPrompt.CryptoObject =
         BiometricPrompt.CryptoObject(initDecryptCipher(iv))
 
+    /** Structured result for the Trust page. */
+    data class HardwareBackingLevel(
+        val provider: String,
+        val levelName: String,
+        val details: String,
+    )
+
+    fun getHardwareBackingLevel(): HardwareBackingLevel {
+        val raw = getHardwareSecurityLevel()
+        return when {
+            raw.startsWith("StrongBox") -> HardwareBackingLevel(
+                "Android Keystore", "StrongBox",
+                "Key lives in a dedicated hardware security chip and never leaves it.",
+            )
+            raw.startsWith("TEE") -> HardwareBackingLevel(
+                "Android Keystore", "TEE",
+                "Key lives in the device's Trusted Execution Environment and never leaves it.",
+            )
+            else -> HardwareBackingLevel(
+                "Android Keystore", "Software",
+                "This device has no hardware-backed key storage. The key is protected by the OS only.",
+            )
+        }
+    }
+
     /** Live Trust Page Check (Spec Page 8: "Keys: hardware level of the device key (StrongBox, TEE or software)"). */
     fun getHardwareSecurityLevel(): String {
         return try {

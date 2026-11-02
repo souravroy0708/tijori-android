@@ -323,8 +323,8 @@ fun TrustPageScreen(app: AppController, actions: PhoneActions) {
                 } else {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         app.unlockLogs.take(10).forEach { event ->
-                            val dateStr = SimpleDateFormat("dd MMM HH:mm:ss", Locale.getDefault()).format(Date(event.createdAt))
-                            val isFail = event.eventType == "UNLOCK_FAIL"
+                            val dateStr = SimpleDateFormat("dd MMM HH:mm:ss", Locale.getDefault()).format(Date(event.epochMillis))
+                            val isFail = event.kind == "UNLOCK_FAIL"
                             Row(
                                 Modifier
                                     .fillMaxWidth()
@@ -341,8 +341,8 @@ fun TrustPageScreen(app: AppController, actions: PhoneActions) {
                                 )
                                 Spacer(Modifier.width(8.dp))
                                 Column(Modifier.weight(1f)) {
-                                    Text(event.eventType, style = MaterialTheme.typography.labelSmall, color = TextMain, fontWeight = FontWeight.Bold)
-                                    Text(event.details, style = MaterialTheme.typography.bodySmall, color = Muted, maxLines = 1)
+                                    Text(event.kind, style = MaterialTheme.typography.labelSmall, color = TextMain, fontWeight = FontWeight.Bold)
+                                    Text(event.detail, style = MaterialTheme.typography.bodySmall, color = Muted, maxLines = 1)
                                 }
                                 Text(dateStr, style = MaterialTheme.typography.bodySmall, color = Muted)
                             }

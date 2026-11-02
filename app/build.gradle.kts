@@ -73,6 +73,7 @@ dependencies {
     implementation(libs.activity.compose)
     implementation(libs.fragment.ktx)
     implementation(libs.lifecycle.runtime.ktx)
+    implementation(libs.lifecycle.process)
     implementation(libs.biometric)
     implementation(libs.coroutines.android)
     testImplementation(libs.junit)

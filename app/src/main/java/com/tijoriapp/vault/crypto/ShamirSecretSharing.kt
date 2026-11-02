@@ -45,6 +45,10 @@ object ShamirSecretSharing {
         val index: Int, // x-coordinate (1..n, must not be 0)
         val data: ByteArray, // y-coordinates for each byte of the secret
     ) {
+        /** Aliases used by the UI and tests: x-coordinate / y-coordinates. */
+        val x: Int get() = index
+        val y: ByteArray get() = data
+
         fun encodeWords(): String {
             // Encode as human-readable share card token with mnemonic checksum
             val hex = data.joinToString("") { "%02X".format(it) }
@@ -64,6 +68,12 @@ object ShamirSecretSharing {
             }
         }
     }
+
+    fun shareToMnemonic(share: Share): String = share.encodeWords()
+
+    /** Returns null when the token is malformed. */
+    fun shareFromMnemonic(token: String): Share? =
+        try { Share.decodeWords(token) } catch (_: Exception) { null }
 
     fun split(secret: ByteArray, k: Int, n: Int, random: SecureRandom = SecureRandom()): List<Share> {
         require(k in 2..n && n <= 255) { "Threshold k must be in 2..n and n <= 255" }

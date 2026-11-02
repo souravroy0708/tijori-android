@@ -133,16 +133,16 @@ class CryptoTest {
         assertEquals("Very Strong", label)
 
         val secretKey = PassphraseGenerator.generateSecretKey128()
-        assertEquals(19, secretKey.length) // 4 blocks of 4 hex chars separated by dashes: XXXX-XXXX-XXXX-XXXX
+        assertEquals(39, secretKey.length) // 128-bit key = 32 hex chars in 8 blocks of 4, separated by 7 dashes
         val clean = secretKey.replace("-", "")
-        assertEquals(16, clean.length)
+        assertEquals(32, clean.length)
     }
 
     @Test
     fun testArgon2idKeyDerivation() {
         val pass = "correct-horse-battery-staple".toCharArray()
         val salt = "0123456789abcdef".toByteArray()
-        val params = Argon2id.KdfParams(memoryKiB = 1024, iterations = 1, parallelism = 1, outputLengthBytes = 32)
+        val params = Argon2id.KdfParams(memoryKiB = 1024, iterations = 1, parallelism = 1, keyLength = 32)
 
         val key1 = Argon2id.derive(pass, salt, params)
         val key2 = Argon2id.derive(pass, salt, params)

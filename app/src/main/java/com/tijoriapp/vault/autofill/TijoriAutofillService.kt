@@ -11,6 +11,7 @@ import android.service.autofill.FillContext
 import android.service.autofill.FillRequest
 import android.service.autofill.FillResponse
 import android.service.autofill.SaveCallback
+import android.app.assist.AssistStructure
 import android.service.autofill.SaveRequest
 import android.view.autofill.AutofillId
 import android.view.autofill.AutofillValue
@@ -57,37 +58,57 @@ class TijoriAutofillService : AutofillService() {
             return
         }
 
-        // Spec Page 7: Money room items are never filled silently
-        if (matchedItem.room == RoomType.MONEY) {
-            val authIntent = PendingIntent.getActivity(
-                this,
-                101,
-                Intent(this, MainActivity::class.java),
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
-            )
-            val response = FillResponse.Builder()
-                .setAuthentication(
-                    arrayOf(AutofillId.create(1, 1)),
-                    authIntent.intentSender,
-                    RemoteViews(packageName, android.R.layout.simple_list_item_1).apply {
-                        setTextViewText(android.R.id.text1, "Unlock Tijori Money Room: ${matchedItem.title}")
-                    }
-                )
-                .build()
-            callback.onSuccess(response)
+        // Collect the real AutofillIds of the login fields on screen
+        val fieldIds = collectLoginFieldIds(structure)
+        if (fieldIds.isEmpty()) {
+            callback.onSuccess(null)
             return
         }
 
-        val usernameField = matchedItem.fields.firstOrNull { it.kind == FieldKind.USERNAME }
-        val passwordField = matchedItem.fields.firstOrNull { it.kind == FieldKind.PASSWORD }
-
+        // Spec Page 4 & 7: every dataset requires authentication, and Money room
+        // items are never filled silently. The user must unlock Tijori first.
+        val authIntent = PendingIntent.getActivity(
+            this,
+            101,
+            Intent(this, MainActivity::class.java),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
+        )
+        val label = if (matchedItem.room == RoomType.MONEY) {
+            "Unlock Tijori Money Room: ${matchedItem.title}"
+        } else {
+            "Unlock Tijori: ${matchedItem.title}"
+        }
         val presentation = RemoteViews(packageName, android.R.layout.simple_list_item_1).apply {
-            setTextViewText(android.R.id.text1, "Tijori: ${matchedItem.title}")
+            setTextViewText(android.R.id.text1, label)
+        }
+        val response = FillResponse.Builder()
+            .setAuthentication(fieldIds.toTypedArray(), authIntent.intentSender, presentation)
+            .build()
+        callback.onSuccess(response)
+    }
+
+    /** Walks the view tree and returns AutofillIds of username/password-like fields. */
+    private fun collectLoginFieldIds(structure: AssistStructure): List<AutofillId> {
+        val hinted = ArrayList<AutofillId>()
+        val editable = ArrayList<AutofillId>()
+
+        fun walk(node: AssistStructure.ViewNode) {
+            val id = node.autofillId
+            if (id != null) {
+                val hints = node.autofillHints
+                if (hints != null && hints.isNotEmpty()) {
+                    hinted.add(id)
+                } else if (node.className?.contains("EditText") == true) {
+                    editable.add(id)
+                }
+            }
+            for (i in 0 until node.childCount) walk(node.getChildAt(i))
         }
 
-        val datasetBuilder = Dataset.Builder(presentation)
-        // In full autofill node traversal, sets username and password values
-        callback.onSuccess(FillResponse.Builder().addDataset(datasetBuilder.build()).build())
+        for (i in 0 until structure.windowNodeCount) {
+            walk(structure.getWindowNodeAt(i).rootViewNode)
+        }
+        return hinted.ifEmpty { editable }
     }
 
     override fun onSaveRequest(request: SaveRequest, callback: SaveCallback) {

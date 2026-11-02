@@ -36,6 +36,17 @@ object PassphraseGenerator {
         }
     }
 
+    /** Dash-separated Diceware-style passphrase, e.g. "eclipse-harbor-...". */
+    fun generateDiceware(wordCount: Int = 6): String {
+        return (1..wordCount).joinToString("-") {
+            DICEWARE_WORDS[random.nextInt(DICEWARE_WORDS.size)]
+        }
+    }
+
+    /** Random character password. [symbols] toggles punctuation. */
+    fun generateRandom(length: Int = 18, symbols: Boolean = true): String =
+        generatePassword(length = length, includeSymbols = symbols)
+
     fun generatePassword(
         length: Int = 18,
         includeUpper: Boolean = true,
@@ -73,11 +84,11 @@ object PassphraseGenerator {
         if (s.isEmpty()) return 0 to "Empty"
 
         // Diceware passphrase detection
-        val words = s.split(Regex("\s+")).filter { it.isNotBlank() }
+        val words = s.split(Regex("[\\s-]+")).filter { it.isNotBlank() }
         if (words.size >= 4 && words.all { it.all { c -> c.isLetter() } }) {
             val entropy = (words.size * 12.92).toInt() // log2(7776) = 12.924 bits per word
             val rating = when {
-                entropy >= 70 -> "Excellent (~$entropy bits Diceware)"
+                entropy >= 70 -> "Very Strong"
                 entropy >= 50 -> "Good (~$entropy bits Diceware)"
                 else -> "Fair (~$entropy bits)"
             }
