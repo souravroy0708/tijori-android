@@ -20,7 +20,9 @@ object ShamirSecretSharing {
             EXP[i] = x
             EXP[i + 255] = x
             LOG[x] = i
-            x = (x shl 1)
+            // Multiply by the generator 3 (= x + 1). NOTE: 2 is NOT primitive for 0x11B
+            // (its order is only 51), which would corrupt the log/exp tables.
+            x = x xor (x shl 1)
             if ((x and 0x100) != 0) {
                 x = x xor POLYNOMIAL
             }
