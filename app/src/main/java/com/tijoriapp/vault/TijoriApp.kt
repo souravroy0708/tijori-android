@@ -9,6 +9,7 @@ import com.tijoriapp.vault.data.Prefs
 import com.tijoriapp.vault.data.VaultSession
 import com.tijoriapp.vault.data.VaultStore
 import com.tijoriapp.vault.security.Clipboard
+import com.tijoriapp.vault.security.CrashLog
 import com.tijoriapp.vault.security.DeviceKeys
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +27,7 @@ class TijoriApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        CrashLog.install(this) // first, so even startup crashes are recorded
         instance = this
         ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onStart(owner: LifecycleOwner) = session.onAppForeground()

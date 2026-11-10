@@ -8,6 +8,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -69,6 +71,7 @@ fun AppRoot(app: TijoriApp, host: Host) {
                         else -> MainShell(app)
                     }
                 }
+                CrashReportDialog(app)
                 SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 84.dp, start = 12.dp, end = 12.dp))
             }
         }
@@ -141,4 +144,27 @@ fun MainShell(app: TijoriApp) {
             }
         }
     }
+}
+
+/** Shown once after a crash: lets the user copy the report and send it to the developer (no internet needed). */
+@Composable
+private fun CrashReportDialog(app: TijoriApp) {
+    var report by remember { mutableStateOf(com.tijoriapp.vault.security.CrashLog.read(app)) }
+    val text = report ?: return
+    fun close() { com.tijoriapp.vault.security.CrashLog.clear(app); report = null }
+    AlertDialog(
+        onDismissRequest = { close() },
+        title = { Text("Tijori closed unexpectedly last time") },
+        text = {
+            Column(Modifier.heightIn(max = 360.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Your vault is safe. Copy this report and send it to the developer so it can be fixed. It contains no vault data.",
+                    style = MaterialTheme.typography.bodyMedium)
+                Text(text, style = MaterialTheme.typography.bodySmall.copy(fontFamily = Mono))
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { app.copy("Tijori crash report", text, sensitive = false); Toasts.show("Report copied"); close() }) { Text("Copy report") }
+        },
+        dismissButton = { TextButton(onClick = { close() }) { Text("Close") } },
+    )
 }

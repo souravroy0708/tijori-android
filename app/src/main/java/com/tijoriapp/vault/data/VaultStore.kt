@@ -17,10 +17,13 @@ class VaultStore(context: Context) : SQLiteOpenHelper(context.applicationContext
 
     data class AuditEntry(val at: Long, val kind: String, val detail: String)
 
+    init { setWriteAheadLoggingEnabled(true) }
+
     override fun onConfigure(db: SQLiteDatabase) {
-        db.enableWriteAheadLogging()
         // Deleted rows are overwritten with zeros instead of lingering in free pages.
-        db.execSQL("PRAGMA secure_delete = ON")
+        // This PRAGMA returns a row, so it must go through rawQuery: execSQL throws on it
+        // ("Queries can be performed using SQLiteDatabase query or rawQuery methods only").
+        db.rawQuery("PRAGMA secure_delete = ON", null).use { it.moveToFirst() }
     }
 
     override fun onCreate(db: SQLiteDatabase) {
