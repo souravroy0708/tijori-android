@@ -34,7 +34,7 @@ jobs:
             echo "TIJORI_KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
           fi
 
-      - name: Run Cryptographic Test Vectors & Unit Tests
+      - name: Unit tests (RFC 9106 Argon2id, RFC 5869 HKDF, RFC 6238 TOTP, Shamir, vault format)
         run: |
           chmod +x gradlew
           ./gradlew testDebugUnitTest --console=plain
@@ -46,8 +46,8 @@ jobs:
           TIJORI_KEY_PASSWORD: ${{ secrets.TIJORI_KEY_PASSWORD }}
         run: |
           ./gradlew assembleRelease --console=plain
-          mv app/build/outputs/apk/release/app-release.apk "app/build/outputs/apk/release/Tijori-v1.0.${{ github.run_number }}.apk"
-          cp "app/build/outputs/apk/release/Tijori-v1.0.${{ github.run_number }}.apk" app/build/outputs/apk/release/Tijori.apk
+          mv app/build/outputs/apk/release/app-release.apk "app/build/outputs/apk/release/Tijori-v2.0.${{ github.run_number }}.apk"
+          cp "app/build/outputs/apk/release/Tijori-v2.0.${{ github.run_number }}.apk" app/build/outputs/apk/release/Tijori.apk
 
       - name: Verify merged release manifest has zero INTERNET permission (Spec Page 10 Privacy Gate)
         run: |
@@ -70,20 +70,20 @@ jobs:
           TIJORI_KEY_PASSWORD: ${{ secrets.TIJORI_KEY_PASSWORD }}
         run: |
           ./gradlew bundleRelease --console=plain
-          mv app/build/outputs/bundle/release/app-release.aab "app/build/outputs/bundle/release/Tijori-v1.0.${{ github.run_number }}.aab"
+          mv app/build/outputs/bundle/release/app-release.aab "app/build/outputs/bundle/release/Tijori-v2.0.${{ github.run_number }}.aab"
 
       - name: Upload Play bundle (.aab)
         if: env.TIJORI_KEYSTORE_PATH != ''
         uses: actions/upload-artifact@v4
         with:
-          name: Tijori-play-bundle-v1.0.${{ github.run_number }}
+          name: Tijori-play-bundle-v2.0.${{ github.run_number }}
           path: app/build/outputs/bundle/release/*.aab
           retention-days: 30
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Tijori-v1.0.${{ github.run_number }}
+          name: Tijori-v2.0.${{ github.run_number }}
           path: app/build/outputs/apk/release/*.apk
           retention-days: 30
 
@@ -91,13 +91,13 @@ jobs:
         if: success() && env.TIJORI_KEYSTORE_PATH != '' && github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.${{ github.run_number }}
-          name: Tijori 1.0.${{ github.run_number }}
+          tag_name: v2.0.${{ github.run_number }}
+          name: Tijori 2.0.${{ github.run_number }}
           make_latest: true
           files: |
             app/build/outputs/apk/release/Tijori.apk
-            app/build/outputs/apk/release/Tijori-v1.0.${{ github.run_number }}.apk
+            app/build/outputs/apk/release/Tijori-v2.0.${{ github.run_number }}.apk
           body: |
             **Tijori — Chaabi sirf aapke paas.**
-            100% On-Device Encrypted Password & Document Vault.
-            No accounts, no servers, and **ships without the INTERNET permission**.
+            Offline password, banking and family vault for India.
+            No accounts, no servers, and **ships without the INTERNET permission** (verified by CI on every build).

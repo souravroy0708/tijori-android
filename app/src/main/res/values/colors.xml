@@ -1,5 +1,5 @@
 <resources>
-    <color name="vault_dark">#0B1320</color>
-    <color name="vault_gold">#EAB308</color>
-    <color name="vault_emerald">#10B981</color>
+    <color name="ink">#0F1235</color>
+    <color name="haldi">#FFC21A</color>
+    <color name="paper">#F4F5FA</color>
 </resources>

@@ -2,116 +2,66 @@ package com.tijoriapp.vault.autofill
 
 import android.app.PendingIntent
 import android.content.Intent
-import android.os.Build
 import android.os.CancellationSignal
 import android.service.autofill.AutofillService
-import android.service.autofill.Dataset
 import android.service.autofill.FillCallback
-import android.service.autofill.FillContext
 import android.service.autofill.FillRequest
 import android.service.autofill.FillResponse
 import android.service.autofill.SaveCallback
-import android.app.assist.AssistStructure
+import android.service.autofill.SaveInfo
 import android.service.autofill.SaveRequest
-import android.view.autofill.AutofillId
-import android.view.autofill.AutofillValue
 import android.widget.RemoteViews
-import com.tijoriapp.vault.MainActivity
 import com.tijoriapp.vault.R
-import com.tijoriapp.vault.data.FieldKind
-import com.tijoriapp.vault.data.LocalVaultDb
-import com.tijoriapp.vault.data.RoomType
 
 /**
- * Native Android AutofillService (Spec Page 4, 7 & 9):
- * - Anti-phishing match rules: exact app package name + exact web domain. No fuzzy matching.
- * - Autofill service returns nothing while vault is locked; each dataset requires authentication.
- * - Money room items are never filled silently (fresh authentication required).
- * - No AccessibilityService (avoiding Play Store policy restrictions).
+ * Autofill without ever reading the vault in the background.
+ * Every fill goes through [AutofillActivity]: the user unlocks Tijori and picks the login. Matching is exact
+ * (same app package, or same website from a trusted browser), which defeats look-alike phishing apps and sites.
  */
 class TijoriAutofillService : AutofillService() {
 
-    override fun onFillRequest(
-        request: FillRequest,
-        cancellationSignal: CancellationSignal,
-        callback: FillCallback,
-    ) {
-        val structure = request.fillContexts.lastOrNull()?.structure
-        if (structure == null) {
-            callback.onSuccess(null)
-            return
-        }
+    override fun onFillRequest(request: FillRequest, cancellationSignal: CancellationSignal, callback: FillCallback) {
+        val structure = request.fillContexts.lastOrNull()?.structure ?: return callback.onSuccess(null)
+        val form = runCatching { FormParser.parse(structure, packageName) }.getOrNull() ?: return callback.onSuccess(null)
+        if (form.password == null && form.username == null) return callback.onSuccess(null)
 
-        val parsedPkg = structure.activityComponent.packageName ?: ""
-        val db = LocalVaultDb.get(applicationContext)
-
-        // Find matching item in Everyday or Money room
-        val items = db.allItems()
-        val matchedItem = items.firstOrNull { item ->
-            val urlField = item.fields.firstOrNull { it.kind == FieldKind.URL }
-            val customLabel = item.title.lowercase()
-            parsedPkg.contains(customLabel) || (urlField != null && urlField.customLabel.contains(parsedPkg))
+        val intent = AutofillActivity.fillIntent(this, form)
+        val sender = PendingIntent.getActivity(
+            this, form.packageName.hashCode() xor System.nanoTime().toInt(), intent,
+            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        ).intentSender
+        val where = form.webDomain ?: appLabel(form.packageName)
+        val presentation = RemoteViews(packageName, R.layout.autofill_item).apply {
+            setTextViewText(R.id.autofill_title, "Fill with Tijori")
+            setTextViewText(R.id.autofill_subtitle, "Unlock to choose a login for $where")
         }
-
-        if (matchedItem == null) {
-            callback.onSuccess(null)
-            return
+        val builder = FillResponse.Builder()
+        @Suppress("DEPRECATION")
+        builder.setAuthentication(form.ids.toTypedArray(), sender, presentation)
+        if (form.password != null) {
+            val type = SaveInfo.SAVE_DATA_TYPE_PASSWORD or (if (form.username != null) SaveInfo.SAVE_DATA_TYPE_USERNAME else 0)
+            builder.setSaveInfo(
+                SaveInfo.Builder(type, arrayOf(form.password))
+                    .apply { form.username?.let { setOptionalIds(arrayOf(it)) } }
+                    .setFlags(SaveInfo.FLAG_SAVE_ON_ALL_VIEWS_INVISIBLE)
+                    .build()
+            )
         }
-
-        // Collect the real AutofillIds of the login fields on screen
-        val fieldIds = collectLoginFieldIds(structure)
-        if (fieldIds.isEmpty()) {
-            callback.onSuccess(null)
-            return
-        }
-
-        // Spec Page 4 & 7: every dataset requires authentication, and Money room
-        // items are never filled silently. The user must unlock Tijori first.
-        val authIntent = PendingIntent.getActivity(
-            this,
-            101,
-            Intent(this, MainActivity::class.java),
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
-        )
-        val label = if (matchedItem.room == RoomType.MONEY) {
-            "Unlock Tijori Money Room: ${matchedItem.title}"
-        } else {
-            "Unlock Tijori: ${matchedItem.title}"
-        }
-        val presentation = RemoteViews(packageName, android.R.layout.simple_list_item_1).apply {
-            setTextViewText(android.R.id.text1, label)
-        }
-        val response = FillResponse.Builder()
-            .setAuthentication(fieldIds.toTypedArray(), authIntent.intentSender, presentation)
-            .build()
-        callback.onSuccess(response)
-    }
-
-    /** Walks the view tree and returns AutofillIds of username/password-like fields. */
-    private fun collectLoginFieldIds(structure: AssistStructure): List<AutofillId> {
-        val hinted = ArrayList<AutofillId>()
-        val editable = ArrayList<AutofillId>()
-
-        fun walk(node: AssistStructure.ViewNode) {
-            val id = node.autofillId
-            if (id != null) {
-                val hints = node.autofillHints
-                if (hints != null && hints.isNotEmpty()) {
-                    hinted.add(id)
-                } else if (node.className?.contains("EditText") == true) {
-                    editable.add(id)
-                }
-            }
-            for (i in 0 until node.childCount) walk(node.getChildAt(i))
-        }
-
-        for (i in 0 until structure.windowNodeCount) {
-            walk(structure.getWindowNodeAt(i).rootViewNode)
-        }
-        return hinted.ifEmpty { editable }
+        callback.onSuccess(builder.build())
     }
 
     override fun onSaveRequest(request: SaveRequest, callback: SaveCallback) {
-        callback.onSuccess()
+        val structure = request.fillContexts.lastOrNull()?.structure ?: return callback.onFailure("Nothing to save")
+        val form = FormParser.parse(structure, packageName)
+        val password = form?.passwordValue
+        if (form == null || password.isNullOrEmpty()) return callback.onFailure("No password found")
+        val intent = AutofillActivity.saveIntent(this, form, form.usernameValue.orEmpty(), password)
+        val pi = PendingIntent.getActivity(this, 7, intent, PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        // Android 9+: hand the user to Tijori to unlock and confirm the save.
+        callback.onSuccess(pi.intentSender)
     }
+
+    private fun appLabel(pkg: String): String = runCatching {
+        packageManager.getApplicationLabel(packageManager.getApplicationInfo(pkg, 0)).toString()
+    }.getOrDefault(pkg)
 }

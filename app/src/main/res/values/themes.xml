@@ -1,11 +1,11 @@
 <resources>
     <style name="Theme.Tijori" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">#0B1320</item>
-        <item name="android:navigationBarColor">#0B1320</item>
-        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:windowBackground">@color/paper</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
     <style name="Theme.Tijori.Starting" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">#0B1320</item>
+        <item name="windowSplashScreenBackground">@color/ink</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
         <item name="postSplashScreenTheme">@style/Theme.Tijori</item>
     </style>
