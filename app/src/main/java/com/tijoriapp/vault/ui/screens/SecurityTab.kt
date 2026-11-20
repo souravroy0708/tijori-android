@@ -59,10 +59,13 @@ fun SecurityTab(app: TijoriApp) {
         AppCard {
             val s by app.prefs.settings.collectAsStateWithLifecycle()
             val host = LocalHost.current
-            StatusRow("Emergency Kit saved", if (s.kitSavedAt > 0) "Saved ${relativeTime(s.kitSavedAt)}" else "Needed to restore on a new phone", s.kitSavedAt > 0,
-                action = if (s.kitSavedAt > 0) null else "Fix") { nav.tab = MainTab.Settings }
-            StatusRow("Recent backup", if (s.lastBackupAt > 0) "Last one ${relativeTime(s.lastBackupAt)}" else "No backup yet",
-                s.lastBackupAt > 0 && System.currentTimeMillis() - s.lastBackupAt < 30L * 86_400_000L, action = "Back up") { nav.tab = MainTab.Settings }
+            val driveOk = s.driveOn && s.driveError.isEmpty()
+            StatusRow("Google Drive backup", when { driveOk -> "On · ${relativeTime(s.driveBackupAt)}"; s.driveOn -> s.driveError; else -> "Off: an uninstall would lose everything" },
+                driveOk, action = if (driveOk) null else "Fix") { nav.push(Dest.DriveBackup) }
+            val easy = app.session.easyRestoreOn
+            StatusRow("Emergency Kit saved", when { s.kitSavedAt > 0 -> "Saved ${relativeTime(s.kitSavedAt)}"; easy -> "Optional: your passphrase restores your backup"; else -> "Needed to restore your backup" },
+                if (s.kitSavedAt > 0) true else if (easy) null else false,
+                action = if (s.kitSavedAt > 0 || easy) null else "Fix") { nav.push(Dest.DriveBackup) }
             StatusRow("Nominee cards", if (s.cardsMadeAt > 0) "Made ${relativeTime(s.cardsMadeAt)}" else "Family can't open the Family room yet", s.cardsMadeAt > 0,
                 action = if (s.cardsMadeAt > 0) null else "Set up") { nav.tab = MainTab.Family }
             StatusRow("Screenshots blocked", if (s.blockScreenshots) "Screen recorders see a black screen" else "Turned off in Settings", s.blockScreenshots)

@@ -8,7 +8,7 @@ plugins {
 val releaseKeystore: String? = System.getenv("TIJORI_KEYSTORE_PATH")
 // Every Play upload needs a higher versionCode: the GitHub run number. Bump appVersion for big releases.
 val buildNumber: Int = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 1
-val appVersion = "2.0"
+val appVersion = "2.1"
 
 android {
     namespace = "com.tijoriapp.vault"

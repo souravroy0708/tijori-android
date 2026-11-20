@@ -102,6 +102,14 @@ fun ItemDetailScreen(app: TijoriApp, id: String) {
             if (item.notes.isNotBlank()) AppCard(title = "Notes") {
                 Text(item.notes, style = MaterialTheme.typography.bodyLarge)
             }
+            if (item.history.isNotEmpty()) AppCard(title = "Previous passwords") {
+                Text("Kept for when a site says \"you used this before\". Encrypted like everything else.", style = MaterialTheme.typography.bodySmall, color = Muted)
+                item.history.forEachIndexed { i, past ->
+                    if (i > 0) HorizontalDivider(color = PaperLine)
+                    FieldView(Field("Replaced ${relativeTime(past.replacedAt)}", FieldKind.PASSWORD, past.value),
+                        onCopy = { v, sens -> copy("Old password", v, sens) }, onOpen = {}, onReveal = touch)
+                }
+            }
             if (item.apps.isNotEmpty()) AppCard(title = "Fills in these apps") {
                 val pm = LocalContext.current.packageManager
                 item.apps.forEach { pkg ->

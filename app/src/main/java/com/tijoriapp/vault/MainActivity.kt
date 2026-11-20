@@ -34,6 +34,33 @@ class MainActivity : FragmentActivity(), Host {
     private var pendingWrite: (suspend (OutputStream) -> Unit)? = null
     private var pendingWriteDone: ((Boolean) -> Unit)? = null
     private var pendingRead: ((ByteArray?) -> Unit)? = null
+    private var pendingDest: ((Uri?) -> Unit)? = null
+    private var pendingBackupOpen: ((Uri?, ByteArray?) -> Unit)? = null
+
+    /** Same "Save to…" screen, but asking for access that survives restarts (needed for automatic backups). */
+    private class CreateLasting : ActivityResultContracts.CreateDocument("application/octet-stream") {
+        override fun createIntent(context: android.content.Context, input: String): Intent =
+            super.createIntent(context, input).addFlags(LASTING_FLAGS)
+    }
+    private class OpenLasting : ActivityResultContracts.OpenDocument() {
+        override fun createIntent(context: android.content.Context, input: Array<String>): Intent =
+            super.createIntent(context, input).addFlags(LASTING_FLAGS)
+    }
+
+    private val createDest = registerForActivityResult(CreateLasting()) { uri ->
+        val cb = pendingDest; pendingDest = null
+        cb?.invoke(uri)
+    }
+    private val openBackup = registerForActivityResult(OpenLasting()) { uri ->
+        val cb = pendingBackupOpen; pendingBackupOpen = null
+        if (uri == null) { cb?.invoke(null, null); return@registerForActivityResult }
+        lifecycleScope.launch {
+            val bytes = withContext(Dispatchers.IO) {
+                runCatching { contentResolver.openInputStream(uri)?.use { it.readBytesCapped(MAX_FILE) } }.getOrNull()
+            }
+            cb?.invoke(uri, bytes)
+        }
+    }
 
     private val createBinary = registerForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { onCreated(it) }
     private val createPdf = registerForActivityResult(ActivityResultContracts.CreateDocument("application/pdf")) { onCreated(it) }
@@ -128,6 +155,20 @@ class MainActivity : FragmentActivity(), Host {
         openDoc.launch(mimes)
     }
 
+    override fun pickBackupDestination(onPicked: (Uri?) -> Unit) {
+        pendingDest = onPicked
+        app.session.expectExternalScreen()
+        runCatching { createDest.launch(com.tijoriapp.vault.data.DriveBackup.FILE_NAME) }
+            .onFailure { pendingDest = null; onPicked(null); Toasts.show("This phone has no file picker.") }
+    }
+
+    override fun openBackupFile(onPicked: (Uri?, ByteArray?) -> Unit) {
+        pendingBackupOpen = onPicked
+        app.session.expectExternalScreen()
+        runCatching { openBackup.launch(arrayOf("*/*")) }
+            .onFailure { pendingBackupOpen = null; onPicked(null, null); Toasts.show("This phone has no file picker.") }
+    }
+
     override fun openAutofillSettings() {
         app.session.expectExternalScreen()
         val i = Intent(Settings.ACTION_REQUEST_SET_AUTOFILL_SERVICE).setData(Uri.parse("package:$packageName"))
@@ -146,6 +187,8 @@ class MainActivity : FragmentActivity(), Host {
 
     companion object {
         private const val MAX_FILE = 64L * 1024 * 1024
+        private const val LASTING_FLAGS = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
+            Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
     }
 }
 

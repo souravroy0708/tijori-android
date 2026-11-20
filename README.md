@@ -1,9 +1,25 @@
-# Tijori (तिजोरी) 2.0 — offline password, banking & family vault
+# Tijori (तिजोरी) 2.1 — password, banking & family vault with Google Drive backup
 
 > *Chaabi sirf aapke paas* — the keys stay only with you.
 
-Tijori is a native Android vault for Indian families. No account, no server, no sync, and the app
-ships **without the INTERNET permission**, so Android itself blocks it from the network.
+Tijori is a native Android vault for Indian families. No account, no server, and the app ships **without the
+INTERNET permission**, so Android itself blocks it from the network. An encrypted copy can live in the user's own
+Google Drive, so passwords survive an uninstall or a lost phone.
+
+## What 2.1 adds
+
+| Feature | How |
+|---|---|
+| **Google Drive auto-backup** | `data/DriveBackup.kt`. The user picks a file once via the Storage Access Framework (`ACTION_CREATE_DOCUMENT`, persistable URI). Every change is debounced (4 s) and written there; the Google Drive app uploads it. Tijori still has no INTERNET permission. Each write is read back and parsed before "Backed up" is shown. |
+| **Restore after reinstall** | Welcome → *Restore from Google Drive* (`ACTION_OPEN_DOCUMENT`, persistable). Backups continue into the same file. |
+| **Easy restore (passphrase only)** | `core/vault/Recovery.kt`. The Secret Key is sealed with AES-GCM under HKDF(Argon2id(passphrase, t+1)) and stored in the backup. On by default, one toggle to require passphrase + Secret Key. Re-sealed on passphrase change. |
+| **Tolerant reader** | `JsonText.firstObject` reads a backup even if a cloud provider didn't truncate the old file on overwrite. |
+| **Import** | `core/vault/CsvImport.kt`: Google Password Manager / Chrome, Bitwarden, 1Password, LastPass, Firefox CSV. RFC 4180 parser, duplicates skipped, `android://…@pkg` logins linked to apps for autofill. |
+| **Password history** | Last 5 passwords per item, inside the encrypted item (`hist` in Codec; old items decode fine). |
+| **UI** | Intro slides, Drive step in setup, "All set" screen, Help & guide (11 topics), backup status chip, one-tap copy, 5- or 6-word passphrase. |
+| **Website** | `docs/` (GitHub Pages): home, help guide, comparison with paid apps, privacy policy. Same design as Kharcha Check / Bas 1 Minute. |
+
+New tests: `DriveBackupTest` (easy restore, wrong passphrase, vault binding, trailing-garbage files, CSV formats, history).
 
 ## What 2.0 changes (and why)
 
@@ -38,7 +54,7 @@ Secret Key (128-bit, Emergency Kit)─┘                       │ wraps (AES-G
 * Each item is sealed with its room key; associated data binds `vaultId/itemId/room`, so rows can't be swapped or moved.
 * Fingerprint: the Keystore RSA public key seals (Everyday + Family) and (Money) separately; every decrypt needs its own biometric.
 * Brute-force throttling (persisted): 5 wrong tries → 30 s, then 1 min, 5 min, 15 min.
-* `FLAG_SECURE` on by default, clipboard copies marked sensitive and auto-cleared, `allowBackup=false`, cloud and device-transfer backup excluded.
+* `FLAG_SECURE` on by default, clipboard copies marked sensitive and auto-cleared, `allowBackup=false`, Android cloud and device-transfer backup excluded (the Drive backup is Tijori's own encrypted file, not Android Auto Backup).
 
 ## Features
 
@@ -47,7 +63,8 @@ Secret Key (128-bit, Emergency Kit)─┘                       │ wraps (AES-G
 * **2-step codes (TOTP)** built in, from a setup key or `otpauth://` link.
 * **Generator**: EFF words, random characters, PIN.
 * **Autofill**: fill + save prompts, Money logins need a fresh check, phishing warnings for unlinked apps/sites.
-* **Backup / restore**: `.tijori` file (already-encrypted rows + header). Restore needs file + Secret Key + passphrase.
+* **Backup / restore**: automatic Google Drive backup (or any folder), plus manual `.tijori` files. Restore needs file + passphrase (easy restore) or file + passphrase + Secret Key.
+* **Import** from Google Password Manager, Chrome, Bitwarden, 1Password, LastPass and Firefox.
 * **Family**: k-of-n nominee cards (2/3, 3/5, 2/2) as bilingual PDFs, encrypted `.tijori-family` package, practice drill, "cancel all cards" (rotates the Family key).
 * **Trust page**: live checks for no INTERNET, backup flag, Keystore level, screen lock, debuggable, signing-certificate SHA-256, local activity log.
 * English / हिन्दी, light / dark / system theme. Design language shared with Bas 1 Minute.
@@ -79,9 +96,13 @@ bash scripts/setup-signing.sh && bash scripts/get-play-bundle.sh
 CI (`.github/workflows/build-apk.yml`) runs the tests, builds signed APK/AAB, and **fails if
 `android.permission.INTERNET` appears in the merged release manifest**.
 
+## GitHub Pages
+Settings → Pages → Deploy from branch → `main` / `docs`. The site is static: no cookies, analytics or third-party requests.
+
 ## Before the first Play release
 
 1. Install a debug build on 2–3 real phones (one low-RAM, one Samsung) and time unlock. If Argon2 takes > 2 s, lower `DEFAULT_KDF` iterations in `VaultCrypto` (stored per vault, so it can change later).
 2. Test autofill in Chrome (Settings → Autofill services → "Autofill using another service"), Firefox and 3–4 Indian banking apps.
 3. Publish your signing-certificate SHA-256 (shown on the Trust page) on your site so users can verify their copy.
-4. See `PLAY-STORE.md` for Data safety answers and listing text.
+4. Run the Drive backup checklist in `PLAY-STORE.md` (uninstall → reinstall → restore) on 2–3 phones.
+5. See `PLAY-STORE.md` for Data safety answers and listing text.

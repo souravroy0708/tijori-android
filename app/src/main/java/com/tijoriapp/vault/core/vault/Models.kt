@@ -47,6 +47,9 @@ enum class ItemType(val en: String, val hi: String, val room: Room) {
     CUSTOM("Other", "अन्य", Room.EVERYDAY),
 }
 
+/** A password this item used before (1Password/Bitwarden-style history). Lives inside the encrypted item. */
+data class PastPassword(val value: String, val replacedAt: Long)
+
 data class VaultItem(
     val id: String = UUID.randomUUID().toString(),
     val room: Room,
@@ -61,7 +64,11 @@ data class VaultItem(
     val updatedAt: Long = System.currentTimeMillis(),
     val passwordChangedAt: Long = System.currentTimeMillis(),
     val lastUsedAt: Long = 0L,
+    /** Newest first, at most [MAX_HISTORY]. Handy when a site says "you used this password before". */
+    val history: List<PastPassword> = emptyList(),
 ) {
+    companion object { const val MAX_HISTORY = 5 }
+
     fun first(kind: FieldKind): Field? = fields.firstOrNull { it.kind == kind && it.value.isNotBlank() }
     val password: String? get() = first(FieldKind.PASSWORD)?.value
     val username: String? get() = (first(FieldKind.USERNAME) ?: first(FieldKind.EMAIL) ?: first(FieldKind.PHONE))?.value

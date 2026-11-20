@@ -9,6 +9,9 @@ import com.tijoriapp.vault.core.crypto.SecretKey
 import com.tijoriapp.vault.core.crypto.wipe
 import com.tijoriapp.vault.core.vault.BackupFile
 import com.tijoriapp.vault.core.vault.LegacyPackage
+import com.tijoriapp.vault.core.vault.PastPassword
+import com.tijoriapp.vault.core.vault.Recovery
+import com.tijoriapp.vault.core.vault.RecoveryEnvelope
 import com.tijoriapp.vault.core.vault.Room
 import com.tijoriapp.vault.core.vault.RoomKeys
 import com.tijoriapp.vault.core.vault.SealedRow
@@ -29,6 +32,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
 import javax.crypto.Cipher
 
 /**
@@ -68,6 +72,12 @@ class VaultSession(
     private var moneyJob: Job? = null
     private var backgroundJob: Job? = null
     private var externalGraceUntil = 0L
+
+    /**
+     * Called after anything that changes what a backup would contain. TijoriApp points this at
+     * [DriveBackup.schedule], so the Google Drive copy follows the vault automatically.
+     */
+    var onVaultChanged: () -> Unit = {}
 
     private val _state = MutableStateFlow(State(if (header == null) Phase.NoVault else Phase.Locked, counts = counts(), vaultId = header?.vaultId ?: ""))
     val state: StateFlow<State> = _state
@@ -111,21 +121,35 @@ class VaultSession(
             startMoneyTimer()
             text
         }
-    }
+    }.also { onVaultChanged() }
 
-    /** Restores a .tijori backup on this phone. Needs the Secret Key from the Emergency Kit and the passphrase. */
+    /**
+     * Restores a .tijori backup on this phone. Needs the passphrase, plus the Secret Key from the Emergency Kit
+     * unless the backup has easy restore (then [secretKeyText] can be blank).
+     */
     suspend fun restore(file: ByteArray, secretKeyText: String, passphrase: String): UnlockResult = mutex.withLock {
         withContext(Dispatchers.Default) {
             val parsed = try { BackupFile.read(file) } catch (e: Exception) { return@withContext UnlockResult.Failed(e.message ?: "Can't read this file") }
-            val sk = SecretKey.parse(secretKeyText) ?: return@withContext UnlockResult.Failed("That Secret Key has a typo. Check each character on your Emergency Kit.")
+            val sk = if (secretKeyText.isBlank() && parsed.recovery != null) {
+                Recovery.open(parsed.recovery, passphrase, parsed.header.vaultId)
+                    ?: return@withContext UnlockResult.Failed("That passphrase doesn't open this backup. Check capital letters and the spaces between words.")
+            } else {
+                SecretKey.parse(secretKeyText) ?: return@withContext UnlockResult.Failed(
+                    if (secretKeyText.isBlank()) "This backup needs the Secret Key from your Emergency Kit." else "That Secret Key has a typo. Check each character on your Emergency Kit.")
+            }
             val opened = try { VaultCrypto.unlock(parsed.header, passphrase, sk, Room.entries.toSet()) } catch (_: WrongPassphraseException) {
                 sk.wipe(); return@withContext UnlockResult.Failed("The passphrase or Secret Key doesn't match this backup.")
             }
             VaultStore.purgePrototype(context)
             moneyJob?.cancel()
             keys.wipe() // drop the old vault's keys without flashing the lock screen
-            store.replaceAll(parsed.header, parsed.rows, mapOf(VaultStore.K_SECRET_KEY to Bytes.b64(device.sealWithDevice(sk))))
+            store.replaceAll(parsed.header, parsed.rows, mapOf(
+                VaultStore.K_SECRET_KEY to Bytes.b64(device.sealWithDevice(sk)),
+                // Still valid: same passphrase, same Secret Key. Keeps easy restore on for the next reinstall.
+                VaultStore.K_RECOVERY to parsed.recovery?.toJson()?.toString(),
+            ))
             store.log("VAULT_RESTORED", "${parsed.rows.size} items")
+            if (parsed.owner.isNotBlank() && prefs.now.ownerName.isBlank()) prefs.setOwner(parsed.owner)
             sk.wipe()
             device.deleteBiometricKey()
             prefs.setBiometric(false)
@@ -136,7 +160,7 @@ class VaultSession(
             publishUnlocked()
             UnlockResult.Ok
         }
-    }
+    }.also { if (it is UnlockResult.Ok) onVaultChanged() }
 
     // =====================================================================================
     // Unlock / lock
@@ -308,24 +332,50 @@ class VaultSession(
             val old = _state.value.items.firstOrNull { it.id == item.id }
             val now = System.currentTimeMillis()
             val pwChanged = old == null || old.password != item.password
+            val oldPw = old?.password
+            val history = if (old != null && pwChanged && !oldPw.isNullOrEmpty())
+                (listOf(PastPassword(oldPw, now)) + old.history.filter { it.value != item.password }).take(VaultItem.MAX_HISTORY)
+            else old?.history ?: item.history
             val toSave = item.copy(
                 title = item.title.trim().ifEmpty { item.type.en },
                 updatedAt = now,
                 createdAt = old?.createdAt ?: now,
                 passwordChangedAt = if (pwChanged) now else old!!.passwordChangedAt,
+                history = history,
             )
             store.put(SealedRow(toSave.id, toSave.room, VaultCrypto.seal(key, h.vaultId, toSave), now))
             _state.update { s -> s.copy(items = s.items.filter { it.id != toSave.id } + toSave, counts = counts()) }
             if (toSave.room == Room.MONEY) touchMoney()
             true
-        }
+        }.also { if (it) onVaultChanged() }
     }
 
-    suspend fun delete(id: String) = mutex.withLock {
-        withContext(Dispatchers.IO) {
-            store.delete(id)
-            _state.update { s -> s.copy(items = s.items.filter { it.id != id }, counts = counts()) }
+    /** Adds many items at once (CSV import). Everyday room only, which is always open while unlocked. */
+    suspend fun importItems(items: List<VaultItem>): Int = mutex.withLock {
+        val h = header ?: return 0
+        withContext(Dispatchers.Default) {
+            val now = System.currentTimeMillis()
+            val rows = items.mapNotNull { item ->
+                val key = keys[item.room] ?: return@mapNotNull null
+                SealedRow(item.id, item.room, VaultCrypto.seal(key, h.vaultId, item), now)
+            }
+            store.putAll(rows)
+            val ids = rows.mapTo(HashSet()) { it.id }
+            val added = items.filter { it.id in ids }
+            _state.update { s -> s.copy(items = s.items + added, counts = counts()) }
+            store.log("IMPORTED", "${rows.size} items")
+            rows.size
+        }.also { if (it > 0) onVaultChanged() }
+    }
+
+    suspend fun delete(id: String) {
+        mutex.withLock {
+            withContext(Dispatchers.IO) {
+                store.delete(id)
+                _state.update { s -> s.copy(items = s.items.filter { it.id != id }, counts = counts()) }
+            }
         }
+        onVaultChanged()
     }
 
     fun markUsed(id: String) {
@@ -408,21 +458,62 @@ class VaultSession(
             try {
                 val nh = VaultCrypto.changePassphrase(h, current, next, sk, recommendedKdf())
                 store.saveHeader(nh); header = nh
+                // Easy restore must follow the new passphrase, or the Drive copy would need the old one.
+                if (store.meta(VaultStore.K_RECOVERY) != null) {
+                    store.setMeta(VaultStore.K_RECOVERY, Recovery.seal(next, sk, nh.vaultId, Recovery.kdfFor(nh.kdf)).toJson().toString())
+                }
                 store.log("PASSPHRASE_CHANGED")
                 UnlockResult.Ok
             } catch (_: WrongPassphraseException) { UnlockResult.Wrong(prefs.recordFailure(), prefs.failedAttempts) }
             finally { sk.wipe() }
-        }
+        }.also { if (it is UnlockResult.Ok) onVaultChanged() }
     }
+
+    // =====================================================================================
+    // Easy restore (passphrase-only recovery for Drive backups)
+    // =====================================================================================
+
+    val easyRestoreOn: Boolean get() = store.meta(VaultStore.K_RECOVERY) != null
+
+    /** Seals the Secret Key under the passphrase so a backup can be restored with the passphrase alone. */
+    suspend fun enableEasyRestore(passphrase: String): UnlockResult = mutex.withLock {
+        val h = header ?: return UnlockResult.Failed("No vault")
+        withContext(Dispatchers.Default) {
+            val sk = runCatching { deviceSecretKey() }.getOrElse { return@withContext UnlockResult.Failed("Couldn't read this phone's key store") }
+            try {
+                VaultCrypto.unlock(h, passphrase, sk, setOf(Room.EVERYDAY)).wipe() // proves the passphrase first
+                store.setMeta(VaultStore.K_RECOVERY, Recovery.seal(passphrase, sk, h.vaultId, Recovery.kdfFor(h.kdf)).toJson().toString())
+                store.log("EASY_RESTORE_ON")
+                UnlockResult.Ok
+            } catch (_: WrongPassphraseException) { UnlockResult.Wrong(prefs.recordFailure(), prefs.failedAttempts) }
+            finally { sk.wipe() }
+        }.also { if (it is UnlockResult.Ok) onVaultChanged() }
+    }
+
+    fun disableEasyRestore() {
+        store.setMeta(VaultStore.K_RECOVERY, null)
+        store.log("EASY_RESTORE_OFF")
+        onVaultChanged()
+    }
+
+    private fun recoveryEnvelope(): RecoveryEnvelope? =
+        store.meta(VaultStore.K_RECOVERY)?.let { runCatching { RecoveryEnvelope.fromJson(JSONObject(it)) }.getOrNull() }
 
     // =====================================================================================
     // Backup and family
     // =====================================================================================
 
-    suspend fun backupBytes(): ByteArray = mutex.withLock {
+    suspend fun backupBytes(log: Boolean = true): ByteArray = mutex.withLock {
         val h = header ?: error("No vault")
-        withContext(Dispatchers.IO) { BackupFile.write(h, store.rows()).also { store.log("BACKUP_EXPORTED") } }
+        withContext(Dispatchers.IO) {
+            BackupFile.write(h, store.rows(), recoveryEnvelope(), prefs.now.ownerName).also { if (log) store.log("BACKUP_EXPORTED") }
+        }
     }
+
+    /** Number of item rows on the phone (to check a written backup). */
+    fun rowCount(): Int = Room.entries.sumOf { store.count(it) }
+
+    val hasVault: Boolean get() = header != null
 
     suspend fun familyPackageBytes(): ByteArray = mutex.withLock {
         val h = header ?: error("No vault")
@@ -471,7 +562,7 @@ class VaultSession(
                 publishUnlocked()
                 UnlockResult.Ok
             } finally { all.wipe(); sk.wipe() }
-        }
+        }.also { if (it is UnlockResult.Ok) onVaultChanged() }
     }
 
     fun audit() = store.audit()

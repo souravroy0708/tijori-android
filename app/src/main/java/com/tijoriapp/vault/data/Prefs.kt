@@ -29,7 +29,20 @@ class Prefs(context: Context) {
         val cardsMadeAt: Long,
         val familyExportAt: Long,
         val kitSavedAt: Long,
-    )
+        /** content:// link to the backup file the user picked (usually in Google Drive). Empty = auto-backup off. */
+        val driveUri: String,
+        /** Shown in the UI: "Google Drive · Tijori-backup.tijori". */
+        val driveLabel: String,
+        val driveBackupAt: Long,
+        /** Last auto-backup problem, shown until the next success. Empty = fine. */
+        val driveError: String,
+        /** A change happened that isn't in the Drive copy yet (survives the app being killed). */
+        val drivePending: Boolean,
+        /** Intro slides seen (first launch only). */
+        val introSeen: Boolean,
+    ) {
+        val driveOn: Boolean get() = driveUri.isNotEmpty()
+    }
 
     private val _settings = MutableStateFlow(read())
     val settings: StateFlow<Settings> = _settings
@@ -50,6 +63,12 @@ class Prefs(context: Context) {
         cardsMadeAt = sp.getLong("cards_at", 0L),
         familyExportAt = sp.getLong("family_export", 0L),
         kitSavedAt = sp.getLong("kit_at", 0L),
+        driveUri = sp.getString("drive_uri", "") ?: "",
+        driveLabel = sp.getString("drive_label", "") ?: "",
+        driveBackupAt = sp.getLong("drive_at", 0L),
+        driveError = sp.getString("drive_error", "") ?: "",
+        drivePending = sp.getBoolean("drive_pending", false),
+        introSeen = sp.getBoolean("intro_seen", false),
     )
 
     fun update(block: android.content.SharedPreferences.Editor.() -> Unit) {
@@ -69,6 +88,16 @@ class Prefs(context: Context) {
     fun markKitSaved() = update { putLong("kit_at", System.currentTimeMillis()) }
     fun markCards(k: Int, n: Int) = update { putInt("family_k", k); putInt("family_n", n); putLong("cards_at", System.currentTimeMillis()) }
     fun markFamilyExport() = update { putLong("family_export", System.currentTimeMillis()) }
+    fun setIntroSeen() = update { putBoolean("intro_seen", true) }
+
+    fun setDrive(uri: String, label: String) = update { putString("drive_uri", uri); putString("drive_label", label); putString("drive_error", ""); putBoolean("drive_pending", true) }
+    fun clearDrive() = update { remove("drive_uri"); remove("drive_label"); remove("drive_error"); putBoolean("drive_pending", false) }
+    fun markDrivePending() { if (!now.drivePending) update { putBoolean("drive_pending", true) } }
+    fun markDriveOk() = update {
+        val t = System.currentTimeMillis()
+        putLong("drive_at", t); putLong("last_backup", t); putString("drive_error", ""); putBoolean("drive_pending", false)
+    }
+    fun markDriveError(message: String) = update { putString("drive_error", message.take(160)) }
 
     // ----- Brute-force throttling (persisted, so killing the app doesn't reset it) -----
     val failedAttempts: Int get() = sp.getInt("fails", 0)
@@ -89,5 +118,5 @@ class Prefs(context: Context) {
 
     fun clearFailures() = sp.edit(commit = true) { putInt("fails", 0); putLong("locked_until", 0L) }
 
-    fun wipe() { sp.edit(commit = true) { clear() }; _settings.value = read() }
+    fun wipe() { sp.edit(commit = true) { clear(); putBoolean("intro_seen", true) }; _settings.value = read() }
 }

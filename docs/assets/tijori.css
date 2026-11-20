@@ -1,0 +1,115 @@
+/* Tijori-only additions on top of site.css. */
+
+/* ---------- Hero visual: the vault on the phone, and the Drive copy beside it ---------- */
+.vault-top{display:flex;justify-content:space-between;align-items:center}
+.vault-top p{font-weight:700;font-size:16px;line-height:1.2}
+.vault-top small{display:block;font-weight:500;font-size:13px;color:var(--tmuted)}
+.vault-hero{background:var(--tdark);color:var(--white);border-radius:22px;padding:14px;display:flex;align-items:center;gap:12px}
+.vault-hero svg{width:84px;height:84px;flex:none}
+.vault-hero dl{margin:0;display:grid;gap:4px}
+.vault-hero dt{font-size:11px;color:var(--muted);line-height:1.2}
+.vault-hero dd{margin:0;font-family:var(--display);font-weight:800;font-size:19px;line-height:1.05}
+.drive-pill{display:flex;align-items:center;gap:8px;background:#E3F7EE;color:var(--mint-2);border-radius:999px;padding:7px 12px;font-size:12.5px;font-weight:700}
+.drive-pill .ic{font-size:16px}
+.rooms{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.rooms div{background:var(--white);border-radius:16px;padding:9px 8px;font-size:11.5px;font-weight:700;line-height:1.2}
+.rooms i{display:block;width:22px;height:22px;border-radius:7px;margin-bottom:6px}
+.rooms b{display:block;font-family:var(--display);font-size:19px}
+.r-every i{background:#8F99FF}.r-money i{background:var(--haldi)}.r-family i{background:#5ED6A0}
+.vault-list{background:var(--white);border-radius:20px;padding:2px 12px;list-style:none;margin:0}
+.vault-list li{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:14px;border-top:1px solid var(--paper)}
+.vault-list li:first-child{border-top:0}
+.vault-list .e{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;font-size:15px;flex:none;background:rgba(143,153,255,.22)}
+.vault-list .n{flex:1;font-weight:500;line-height:1.15;min-width:0}
+.vault-list .n small{display:block;font-size:11.5px;color:var(--tmuted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vault-list .dots{font-family:var(--display);letter-spacing:.08em;color:var(--tmuted)}
+.float-drive{top:0;left:0}
+.journey + .note{margin-top:28px;max-width:52em}
+.float-restore{bottom:0;left:50%;transform:translateX(-50%);width:min(360px,96%)}
+
+/* ---------- Uninstall → reinstall → restored strip (the core promise, as a sequence) ---------- */
+.journey{list-style:none;margin:0;padding:0;display:grid;gap:14px;counter-reset:j}
+.journey li{position:relative;background:var(--ink-2);border:1px solid var(--line);border-radius:var(--r-lg);padding:24px 22px 22px;counter-increment:j}
+.journey li::before{content:counter(j);display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:var(--haldi);color:var(--ink);font-family:var(--display);font-weight:800;font-size:19px;margin-bottom:14px}
+.journey li.bad::before{background:var(--coral);color:var(--white)}
+.journey li.good::before{background:var(--mint);color:var(--white)}
+.journey h3{font-size:25px;line-height:1.1;margin-bottom:6px}
+.journey p{color:var(--muted);font-size:16.5px}
+
+/* ---------- Passphrase demo ---------- */
+.pp-out{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 8px;min-height:52px}
+.pp-out span{background:var(--white);border:1px solid var(--pline);border-radius:14px;padding:9px 14px;font-family:var(--display);font-weight:700;font-size:22px;color:var(--tdark)}
+.pp-out span small{font-family:var(--body);font-weight:500;font-size:12px;color:var(--tmuted);margin-right:6px}
+.pp-meta{color:var(--tmuted);font-size:16px}
+.pp-meta b{color:var(--tdark)}
+
+/* ---------- Comparison table ---------- */
+.cmp-wrap{overflow-x:auto;border-radius:var(--r-lg);border:1px solid var(--pline);background:var(--white);-webkit-overflow-scrolling:touch}
+.cmp{border-collapse:collapse;width:100%;min-width:860px;font-size:15.5px;color:var(--tdark)}
+.cmp caption{text-align:left;padding:18px 20px 0;color:var(--tmuted);font-size:15px}
+.cmp th,.cmp td{padding:13px 14px;text-align:left;vertical-align:top;border-top:1px solid var(--pline)}
+.cmp thead th{border-top:0;font-family:var(--display);font-weight:800;font-size:18px;line-height:1.1;padding-top:20px}
+.cmp thead th small{display:block;font-family:var(--body);font-weight:500;font-size:13px;color:var(--tmuted);margin-top:3px}
+.cmp tbody th{font-weight:700;width:22%}
+.cmp .us{background:#FFF8E1}
+.cmp thead .us{background:var(--haldi)}
+.cmp .y,.cmp .n,.cmp .p{display:inline-flex;align-items:flex-start;gap:7px}
+.cmp .y::before,.cmp .n::before,.cmp .p::before{content:"";width:9px;height:9px;border-radius:50%;flex:none;margin-top:.5em}
+.cmp .y::before{background:var(--mint)}
+.cmp .n::before{background:var(--coral)}
+.cmp .p::before{background:var(--haldi-2)}
+.cmp td small{display:block;color:var(--tmuted);font-size:13px;line-height:1.35;margin-top:2px}
+.legend-row{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:14px;color:var(--tmuted);font-size:15px}
+.take{display:grid;gap:16px;margin-top:44px}
+.take div{background:var(--paper);border-radius:var(--r-lg);padding:24px}
+.take h3{font-size:24px;line-height:1.1;margin-bottom:8px}
+.take p{color:var(--tmuted);font-size:16.5px}
+
+/* ---------- Guide (help) page ---------- */
+.page-hero{padding:56px 0 48px}
+.page-hero h1{font-size:clamp(46px,9vw,84px);font-stretch:82%;line-height:.92;margin:14px 0 16px;max-width:11em}
+.page-hero .lede{max-width:40em}
+.guide-grid{display:grid;gap:36px}
+.toc{align-self:start}
+.toc h2{font-size:18px;font-family:var(--body);font-weight:700;color:var(--tmuted);margin-bottom:10px;letter-spacing:0}
+.toc ol{margin:0;padding-left:22px;display:grid;gap:6px;font-size:16.5px}
+.toc a{color:var(--tdark);text-decoration:none}
+.toc a:hover{text-decoration:underline}
+.gsec{padding:30px 0;border-top:1px solid var(--pline);scroll-margin-top:84px}
+.gsec:first-child{border-top:0;padding-top:0}
+.gsec h2{font-size:clamp(30px,4.6vw,44px);font-stretch:88%;line-height:1;margin-bottom:12px}
+.gsec > p{color:var(--tmuted);max-width:40em}
+.gsec ol.do{margin:18px 0 0;padding:0;list-style:none;counter-reset:s;display:grid;gap:10px;max-width:44em}
+.gsec ol.do li{counter-increment:s;display:grid;grid-template-columns:34px minmax(0,1fr);gap:12px;align-items:start;background:var(--paper);border-radius:var(--r-md);padding:14px 16px}
+.gsec ol.do li::before{content:counter(s);width:30px;height:30px;border-radius:50%;background:var(--tdark);color:var(--haldi);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:15px}
+.gsec ol.do b{font-weight:700}
+.gsec .tip{margin-top:16px;max-width:44em;background:#FFF8E1;border-left:4px solid var(--haldi);border-radius:0 var(--r-md) var(--r-md) 0;padding:14px 18px;font-size:16.5px}
+.gsec .warn{background:#FFE7DF;border-left-color:var(--coral)}
+.kbd{display:inline-block;background:var(--white);border:1px solid var(--pline);border-bottom-width:2px;border-radius:7px;padding:0 7px;font-size:15px;font-weight:700;white-space:nowrap}
+
+/* ---------- Privacy page ---------- */
+.prose{max-width:44em}
+.prose h2{font-size:clamp(28px,4vw,38px);font-stretch:88%;line-height:1.05;margin:40px 0 12px}
+.prose h2:first-child{margin-top:0}
+.prose p,.prose li{color:var(--tmuted)}
+.prose p + p{margin-top:12px}
+.prose ul{padding-left:22px;display:grid;gap:6px}
+.prose a{color:var(--blue);font-weight:700}
+.prose strong{color:var(--tdark)}
+
+@media (min-width:640px){
+  .journey{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .take{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .float-drive{left:2%}
+}
+@media (min-width:980px){
+  .journey{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .float-drive{left:-14%;top:4%}
+  .float-restore{left:auto;right:-10%;transform:none;width:330px;bottom:0}
+  .guide-grid{grid-template-columns:260px minmax(0,1fr);gap:64px}
+  .toc{position:sticky;top:96px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .float-restore{animation:arrive .7s .5s cubic-bezier(.2,.8,.2,1) both}
+  @keyframes arrive{from{opacity:0;translate:0 16px}to{opacity:1;translate:0 0}}
+}

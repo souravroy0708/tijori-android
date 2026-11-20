@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.tijoriapp.vault.core.vault.ItemType
 import com.tijoriapp.vault.core.vault.Room
+import android.net.Uri
 import java.io.OutputStream
 import javax.crypto.Cipher
 
@@ -22,6 +23,9 @@ sealed interface Dest {
     data object ChangePassphrase : Dest
     data object About : Dest
     data class Nominee(val practice: ByteArray? = null) : Dest
+    data object DriveBackup : Dest
+    data object Import : Dest
+    data class Help(val topic: String? = null) : Dest
 }
 
 /** A tiny back stack. Enough for this app and easy to reason about (no reflection, no routes as strings). */
@@ -41,6 +45,10 @@ interface Host {
     fun biometric(title: String, subtitle: String, cipher: Cipher, onSuccess: (Cipher) -> Unit, onFail: (String?) -> Unit)
     fun createFile(fileName: String, mime: String, write: suspend (OutputStream) -> Unit, onDone: (Boolean) -> Unit)
     fun openFile(mimes: Array<String>, onRead: (ByteArray?) -> Unit)
+    /** "Save to…" picker for the auto-backup file. The returned link stays usable across restarts. */
+    fun pickBackupDestination(onPicked: (Uri?) -> Unit) = onPicked(null)
+    /** Picks an existing backup (e.g. in Google Drive) with lasting read/write access, and reads it. */
+    fun openBackupFile(onPicked: (Uri?, ByteArray?) -> Unit) = onPicked(null, null)
     fun openAutofillSettings()
     fun openUrl(url: String)
     val biometricAvailable: Boolean

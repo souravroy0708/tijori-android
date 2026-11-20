@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- No cookies, no analytics, no third-party fonts or scripts. Everything loads from this site only. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#0F1235">
+  <title>Tijori: a password vault for India that never loses your passwords</title>
+  <meta name="description" content="Saare password, ek chaabi. Tijori remembers your Gmail, banking and everyday passwords, fills them in, and keeps an encrypted copy in your own Google Drive. Free, no account, no ads.">
+  <link rel="canonical" href="https://souravroy0708.github.io/tijori-android/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Tijori">
+  <meta property="og:title" content="Tijori: a password vault for India that never loses your passwords">
+  <meta property="og:description" content="Saare password, ek chaabi. Tijori remembers your Gmail, banking and everyday passwords, fills them in, and keeps an encrypted copy in your own Google Drive. Free, no account, no ads.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/anek-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/mukta-regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/site.css">
+  <link rel="stylesheet" href="assets/tijori.css">
+  <script src="assets/words.js" defer></script>
+  <script src="assets/site.js" defer></script>
+</head>
+<body>
+
+<svg class="sprite" width="0" height="0" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7.5 3v6c0 4.6-3.2 8-7.5 9-4.3-1-7.5-4.4-7.5-9V6z"/><path d="M8.8 12.2l2.2 2.2 4.2-4.4"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18.5a4.5 4.5 0 0 1-.6-9A6 6 0 0 1 17.6 9 4.3 4.3 0 0 1 17.5 18.5z"/><path d="M9.3 13.6l2 2 3.6-3.8"/></symbol>
+  <symbol id="i-cloud-off" viewBox="0 0 24 24"><path d="M3 3l18 18M8.5 6.3A6 6 0 0 1 17.6 10 4 4 0 0 1 20 17.3M16.5 18H7a4.5 4.5 0 0 1-1.6-8.7"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4.5"/><path d="M11.2 11.8L20 3M16.5 6.5l2.5 2.5M14 9l2 2"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.5"/><path d="M2.5 20c.6-3.5 3.3-5.5 6.5-5.5s5.9 2 6.5 5.5"/><path d="M16 5.2a3.4 3.4 0 0 1 0 6.6M18 14.8c1.9.8 3.1 2.6 3.5 5.2"/></symbol>
+  <symbol id="i-finger" viewBox="0 0 24 24"><path d="M6.5 6.5A8 8 0 0 1 20 12v1M4 11a8 8 0 0 1 .7-3M8 20.5c1.2-2 2-4.6 2-8.5a2 2 0 0 1 4 0c0 1.3-.1 2.6-.3 3.8M12 12c0 4-1 7-2.5 9M16 15.5c-.3 2-.8 3.8-1.6 5.2M8 12a4 4 0 0 1 8 0"/></symbol>
+  <symbol id="i-import" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 11v6M9 14l3 3 3-3"/></symbol>
+  <symbol id="i-fill" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M7 12h.01M10.5 12h.01M14 12h.01M17 10v4"/></symbol>
+  <symbol id="i-health" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.4-7.5-10A4.2 4.2 0 0 1 12 7.6 4.2 4.2 0 0 1 19.5 10c0 5.6-7.5 10-7.5 10z"/><path d="M8 12h2.5l1-2 2 4 1-2H16"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-history" viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 3.5v5h5M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="12" height="12" rx="2.5"/><path d="M15.5 8.5V6a2.5 2.5 0 0 0-2.5-2.5H6A2.5 2.5 0 0 0 3.5 6v7A2.5 2.5 0 0 0 6 15.5h2.5"/></symbol>
+  <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 5.1A9.8 9.8 0 0 1 12 5c5.5 0 9 7 9 7a16 16 0 0 1-2.6 3.4M6.5 6.6C4.1 8.2 3 12 3 12s3.5 7 9 7a9 9 0 0 0 4.2-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="M8.5 7L3.5 12l5 5M15.5 7l5 5-5 5"/></symbol>
+  <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M2.5 9a14 14 0 0 1 19 0M5.5 12.5a9.5 9.5 0 0 1 13 0M8.8 16a4.8 4.8 0 0 1 6.4 0"/><circle cx="12" cy="19.5" r=".9"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></symbol>
+  <symbol id="i-bank" viewBox="0 0 24 24"><path d="M3 9.5L12 4l9 5.5M5 10v7M9.5 10v7M14.5 10v7M19 10v7M3.5 20h17"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3.5 7l8.5 6 8.5-6"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8M4 3.5V8h4.5M4 13a8 8 0 0 0 14.3 4.9L20 16M20 20.5V16h-4.5"/></symbol>
+</svg>
+
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="brand" href="#top" aria-label="Tijori home">
+      <img class="brand-mark" src="assets/favicon.svg" alt="" width="44" height="44">
+      <span class="brand-text"><b>Tijori</b><span>Chaabi sirf aapke paas</span></span>
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="#backup">Drive backup</a>
+      <a href="#features">Features</a>
+      <a href="compare.html">Compare</a>
+      <a href="guide.html">Help guide</a>
+      <a href="#faq">Questions</a>
+    </nav>
+    <a class="btn btn-haldi header-cta" href="#get">Get the app</a>
+    <details class="menu">
+      <summary aria-label="Open menu"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg></summary>
+      <nav class="menu-panel" aria-label="Main">
+      <a href="#backup">Drive backup</a>
+      <a href="#features">Features</a>
+      <a href="compare.html">Compare</a>
+      <a href="guide.html">Help guide</a>
+      <a href="#faq">Questions</a>
+        <a class="btn btn-haldi" href="#get">Get the app</a>
+      </nav>
+    </details>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="hero" id="top" aria-labelledby="hero-title">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="chip"><span class="live-dot" aria-hidden="true"></span>Password vault for Android, made for India</p>
+      <h1 id="hero-title">Saare password. Ek chaabi.</h1>
+      <p class="lede">Gmail, banking, shopping, Wi-Fi: Tijori remembers them and fills them in for you. An encrypted copy sits in <strong>your own Google Drive</strong>, so uninstalling the app or losing your phone never means losing your passwords.</p>
+      <div class="hero-actions">
+        <a class="btn btn-haldi btn-lg" href="#get"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Get it for Android</a>
+        <a class="btn btn-ghost btn-lg" href="#backup"><svg class="ic" aria-hidden="true"><use href="#i-cloud"/></svg>How the backup works</a>
+      </div>
+      <ul class="hero-points">
+        <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Remember one passphrase</li>
+        <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Restores after reinstall</li>
+        <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>No account, no ads</li>
+        <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Free</li>
+      </ul>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="glow"></div>
+      <div class="phone">
+        <div class="screen">
+          <div class="notch"></div>
+          <div class="vault-top"><p><small>Namaste</small>Sourav</p><span class="app-avatar">S</span></div>
+          <div class="vault-hero">
+            <svg viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="50" fill="none" stroke="#232963" stroke-width="11"/>
+              <circle cx="60" cy="60" r="50" fill="none" stroke="#5ED6A0" stroke-width="11" stroke-linecap="round" stroke-dasharray="276 314" transform="rotate(-90 60 60)"/>
+              <text x="60" y="70" text-anchor="middle" font-family="Anek Latin, sans-serif" font-weight="800" font-size="34" fill="#FFFFFF">88</text>
+            </svg>
+            <dl>
+              <div><dt>Security score</dt><dd>Good</dd></div>
+              <div><dt>Passwords</dt><dd>48</dd></div>
+            </dl>
+          </div>
+          <p class="drive-pill"><svg class="ic" aria-hidden="true"><use href="#i-cloud"/></svg>Backed up to Drive · 2 min ago</p>
+          <div class="rooms">
+            <div class="r-every"><i></i>Everyday<b>39</b></div>
+            <div class="r-money"><i></i>Money<b>6</b></div>
+            <div class="r-family"><i></i>Family<b>3</b></div>
+          </div>
+          <ul class="vault-list">
+            <li><span class="e">✉️</span><span class="n">Personal Gmail<small>sourav.roy@gmail.com</small></span><span class="dots">••••</span></li>
+            <li><span class="e">🛒</span><span class="n">Amazon<small>98xxxxxx10</small></span><span class="dots">••••</span></li>
+            <li><span class="e">🚆</span><span class="n">IRCTC<small>sroy_travels</small></span><span class="dots">••••</span></li>
+            <li><span class="e">📶</span><span class="n">Home Wi-Fi<small>Roy_5G</small></span><span class="dots">••••</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="float float-drive">
+        <span class="float-ic float-ic-mint"><svg class="ic" aria-hidden="true"><use href="#i-cloud"/></svg></span>
+        <p><small>Google Drive</small><b>Tijori-backup.tijori</b></p>
+      </div>
+      <div class="float float-restore">
+        <span class="float-ic"><svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg></span>
+        <p><small>New phone? Reinstalled?</small><b>Type your passphrase. All 48 are back.</b></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec sec-dark" id="backup" aria-labelledby="backup-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="kicker">Google Drive backup</p>
+      <h2 id="backup-title">Uninstall it. Lose the phone. Your passwords come back.</h2>
+      <p>Most offline vaults lose everything when the app is removed. Tijori keeps one encrypted file in your Google Drive and updates it a few seconds after every change. You set it up once, during setup.</p>
+    </div>
+    <ol class="journey">
+      <li><h3>Save as usual</h3><p>Add your Gmail, import the rest from Google Password Manager. Each change is copied to Drive, already locked.</p></li>
+      <li class="bad"><h3>Something happens</h3><p>You uninstall Tijori, reset the phone, or the phone is lost or stolen. The copy on the phone is gone.</p></li>
+      <li><h3>Install again</h3><p>Install Tijori, tap <b>Restore from Google Drive</b>, open <b>Tijori-backup.tijori</b> from Drive.</p></li>
+      <li class="good"><h3>Everything is back</h3><p>Type your master passphrase. Every password returns, and backups carry on into the same file.</p></li>
+    </ol>
+    <p class="note">Google stores the file but can’t read it: titles, usernames and passwords are all encrypted on your phone first. Tijori itself has no internet permission; the Google Drive app carries the locked file. <a href="guide.html#drive">Read how it works</a>.</p>
+  </div>
+</section>
+
+<section class="sec sec-white" id="features" aria-labelledby="feat-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="feat-title">Less remembering. Less typing.</h2>
+      <p>The everyday jobs of a password manager, done the simple way, plus the things Indian families actually need.</p>
+    </div>
+
+    <div class="story">
+      <div class="story-copy">
+        <p class="story-tag">Import</p>
+        <h3>Bring every password from Google in one go</h3>
+        <p>Already saving passwords in Chrome or Google Password Manager? Export them once and open the file in Tijori. Logins for websites and Android apps come across together, and duplicates are skipped.</p>
+        <ul class="mini-checks">
+          <li>Google Password Manager, Chrome, Bitwarden, 1Password, LastPass and Firefox files</li>
+          <li>Gmail and Outlook logins are filed as email accounts</li>
+          <li>The file is read on the phone; Tijori reminds you to delete it after</li>
+        </ul>
+      </div>
+      <div class="story-visual" aria-hidden="true">
+        <div class="vcard">
+          <div class="vhead"><b>Google Password Manager</b><span>52 rows</span></div>
+          <p class="vsub"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>48 new passwords, 4 already in Tijori</p>
+          <div class="irow"><span class="box on"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg></span><span class="d">✉️</span><p>Google (Gmail)<small>Email account</small></p><span class="a">••••</span></div>
+          <div class="irow"><span class="box on"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg></span><span class="d">🛒</span><p>Flipkart<small>Website</small></p><span class="a">••••</span></div>
+          <div class="irow"><span class="box on"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg></span><span class="d">📱</span><p>Swiggy app<small>Fills inside the app</small></p><span class="a">••••</span></div>
+          <div class="irow dupe"><span class="box off"></span><span class="d">🚆</span><p>IRCTC<small>Already in Tijori</small></p><span class="a">••••</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="story story-rev">
+      <div class="story-copy">
+        <p class="story-tag">Autofill</p>
+        <h3>Fills the real site. Refuses the fake one.</h3>
+        <p>Tap a login box in an app or in Chrome and pick your account. Tijori fills only on the exact app or website you saved, so a look-alike page like <b>hdfcbank.com.verify-kyc.in</b> gets nothing.</p>
+        <ul class="mini-checks">
+          <li>Offers to save new logins as you sign in</li>
+          <li>Banking logins need your fingerprint before filling</li>
+          <li>Copied passwords clear from the clipboard by themselves</li>
+        </ul>
+      </div>
+      <div class="story-visual" aria-hidden="true">
+        <div class="shot">
+          <div class="shot-src">
+            <span class="ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg></span>
+            <b>accounts.google.com</b>
+            <small>Matches your saved site<br>Personal Gmail</small>
+          </div>
+          <div class="fill">
+            <div><span>Email</span><b>sourav.roy@gmail.com</b></div>
+            <div><span>Password</span><b>•••••••••••••</b></div>
+            <div><span>Look-alike site</span><b class="spark">Blocked</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="story">
+      <div class="story-copy">
+        <p class="story-tag">Three rooms</p>
+        <h3>Your Gmail opens easily. Your bank doesn’t.</h3>
+        <p>Everyday logins open with the vault. Net banking, cards, UPI and investments live in the Money room, which asks for your fingerprint every time and locks itself when you stop using it. The Family room holds insurance, locker and will details for the people you love.</p>
+        <ul class="mini-checks">
+          <li>Cards are saved as last 4 digits and a PIN hint, never the PIN or CVV</li>
+          <li>Reminders before cards, passports and premiums expire</li>
+          <li>Nominee cards let family open the Family room, and only that</li>
+        </ul>
+      </div>
+      <div class="story-visual" aria-hidden="true">
+        <div class="vcard">
+          <div class="score-top">
+            <svg class="score-ring" viewBox="0 0 86 86">
+              <circle cx="43" cy="43" r="36" fill="none" stroke="#E6E8F2" stroke-width="9"/>
+              <circle cx="43" cy="43" r="36" fill="none" stroke="#FFC21A" stroke-width="9" stroke-linecap="round" stroke-dasharray="150 226.2" transform="rotate(-90 43 43)"/>
+              <text x="43" y="50" text-anchor="middle" font-family="Anek Latin, sans-serif" font-weight="800" font-size="20" fill="#0F1235">0:42</text>
+            </svg>
+            <p><small>Money room is open</small><b>Locks itself in 42 seconds</b></p>
+          </div>
+          <div class="irow"><span class="box on"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg></span><span class="d">🏦</span><p>SBI NetBanking<small>Fingerprint each time</small></p><span class="a">••••</span></div>
+          <div class="irow"><span class="box on"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg></span><span class="d">💳</span><p>HDFC Millennia<small>Last 4: 5523 · PIN hint only</small></p><span class="a">09/28</span></div>
+          <div class="irow"><span class="box on"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg></span><span class="d">📈</span><p>EPF (UAN)<small>Nominee: Priya</small></p><span class="a">••••</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec sec-paper" id="try" aria-labelledby="try-title">
+  <div class="wrap try-grid">
+    <div class="try-copy">
+      <h2 id="try-title" class="h-sec">One passphrase to remember. Try one.</h2>
+      <p class="sec-lede">Tijori suggests a few random everyday words as your master passphrase. They are far easier to remember than <b>Sourav@123</b>, and far harder to guess. This page uses the same 7,776-word list as the app.</p>
+      <p class="offline-note"><svg class="ic" aria-hidden="true"><use href="#i-wifi"/></svg><span><b>Made in your browser, never sent anywhere.</b> Still, pick your real passphrase inside the app, not from a website.</span></p>
+    </div>
+    <div class="demo">
+      <p class="nojs-msg" data-pp-nojs>Turn on JavaScript to try the passphrase maker. It runs only in your browser.</p>
+      <div data-pp hidden>
+        <div class="seg-row" role="group" aria-label="Number of words">
+          <button class="seg-btn" type="button" aria-pressed="true" data-count="5">5 words · easier</button>
+          <button class="seg-btn" type="button" aria-pressed="false" data-count="6">6 words · strongest</button>
+        </div>
+        <div class="pp-out" data-pp-out aria-live="polite"></div>
+        <p class="pp-meta" data-pp-meta></p>
+        <div class="demo-actions">
+          <button class="btn btn-ink btn-lg" type="button" data-pp-new><svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg>New words</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec sec-dark" aria-labelledby="all-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="all-title">And the things you’d expect from a paid app</h2>
+      <p>Free, with no premium tier. <a href="compare.html">See how it compares</a> with Google Password Manager, Bitwarden, 1Password and others.</p>
+    </div>
+    <div class="groups">
+      <div class="group">
+        <h3>Stay safe</h3>
+        <p>Checked on the phone, nothing sent anywhere.</p>
+        <ul class="flist">
+          <li><span class="fi"><svg class="ic" aria-hidden="true"><use href="#i-health"/></svg></span><div><b>Security check</b><span>Weak, reused and old banking passwords, with a score.</span></div></li>
+          <li><span class="fi"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg></span><div><b>2-step codes</b><span>Built-in authenticator codes for Gmail and others.</span></div></li>
+          <li><span class="fi"><svg class="ic" aria-hidden="true"><use href="#i-spark"/></svg></span><div><b>Password generator</b><span>Words, random characters or a PIN.</span></div></li>
+          <li><span class="fi"><svg class="ic" aria-hidden="true"><use href="#i-history"/></svg></span><div><b>Password history</b><span>Your last 5 passwords for each login, for “you used this before”.</span></div></li>
+        </ul>
+      </div>
+      <div class="group">
+        <h3>Stay fast</h3>
+        <p>Open, find, copy, done.</p>
+        <ul class="flist">
+          <li><span class="fi"><svg class="ic" aria-hidden="true"><use href="#i-finger"/></svg></span><div><b>Fingerprint unlock</b><span>Tied to your phone’s secure chip.</span></div></li>
+          <li><span class="fi"><svg class="ic" aria-hidden="true"><use href="#i-copy"/></svg></span><div><b>One-tap copy</b><span>Copy a password straight from the list. Clears itself.</span></div></li>
+          <li><span class="fi"><svg class="ic" aria-hidden="true"><use href="#i-fill"/></svg></span><div><b>Autofill</b><span>In apps and in Chrome, only on the real site.</span></div></li>
+          <li><span class="fi"><svg class="ic" aria-hidden="true"><use href="#i-import"/></svg></span><div><b>Import</b><span>From Google, Chrome, Bitwarden, 1Password and more.</span></div></li>
+        </ul>
+      </div>
+      <div class="group">
+        <h3>Look after family</h3>
+        <p>For the day someone else needs to find things.</p>
+        <ul class="flist">
+          <li><span class="fi"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg></span><div><b>Nominee cards</b><span>Any 2 of 3 cards open the Family room. One alone reveals nothing.</span></div></li>
+          <li><span class="fi"><svg class="ic" aria-hidden="true"><use href="#i-file"/></svg></span><div><b>Letter to family</b><span>Who to call first, which accounts exist, your wishes.</span></div></li>
+          <li><span class="fi"><svg class="ic" aria-hidden="true"><use href="#i-bank"/></svg></span><div><b>India-first templates</b><span>Net banking, UPI, PPF, EPF, NPS, income tax, Aadhaar, PAN.</span></div></li>
+        </ul>
+      </div>
+      <div class="group group-hi">
+        <h3>Never lose it</h3>
+        <p>The part most offline vaults get wrong.</p>
+        <ul class="flist">
+          <li><span class="fi"><svg class="ic" aria-hidden="true"><use href="#i-cloud"/></svg></span><div><b>Automatic Drive backup</b><span>One encrypted file, updated after every change.</span></div></li>
+          <li><span class="fi"><svg class="ic" aria-hidden="true"><use href="#i-key"/></svg></span><div><b>Passphrase-only restore</b><span>No printed kit needed after a reinstall.</span></div></li>
+          <li><span class="fi"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg></span><div><b>Extra copies</b><span>Save a file to a pen drive or laptop any time.</span></div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec sec-white" aria-labelledby="priv-title">
+  <div class="wrap priv-split">
+    <div class="priv-side">
+      <h2 id="priv-title" class="h-sec">Locked before it goes anywhere</h2>
+      <p class="sec-lede">A privacy policy is only words. These are the things the app actually does.</p>
+      <div class="site-promise">
+        <h3>This website follows the same rules</h3>
+        <p>No cookies, no analytics, no ad trackers, and no fonts or scripts from other companies. The source is <a href="https://github.com/souravroy0708/tijori-android">on GitHub</a>.</p>
+      </div>
+    </div>
+    <ul class="check-list">
+      <li><svg class="ic" aria-hidden="true"><use href="#i-cloud-off"/></svg><div><b>No internet permission</b><span>Android itself blocks Tijori from the network. The build fails automatically if that permission ever appears.</span></div></li>
+      <li><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg><div><b>Everything encrypted, even titles</b><span>Each item is sealed with AES-256-GCM. Your passphrase is stretched with Argon2id, so every guess is slow.</span></div></li>
+      <li><svg class="ic" aria-hidden="true"><use href="#i-cloud"/></svg><div><b>Google gets a locked box</b><span>The Drive copy is the same encrypted data. Google can store it but can’t open it.</span></div></li>
+      <li><svg class="ic" aria-hidden="true"><use href="#i-key"/></svg><div><b>No account, no reset link</b><span>Nobody, including us, can open your vault or reset your passphrase. So keep it written somewhere safe at home.</span></div></li>
+      <li><svg class="ic" aria-hidden="true"><use href="#i-eye-off"/></svg><div><b>Screenshots blocked</b><span>Screen recorders and the recent-apps screen see nothing.</span></div></li>
+      <li><svg class="ic" aria-hidden="true"><use href="#i-code"/></svg><div><b>Open source</b><span>Anyone can check the code, and compare the app’s signature on the Trust screen.</span></div></li>
+    </ul>
+  </div>
+</section>
+
+<section class="sec sec-dark faq" id="faq" aria-labelledby="faq-title">
+  <div class="wrap faq-grid">
+    <div class="sec-head">
+      <h2 id="faq-title">Questions people ask first</h2>
+      <p>More in the <a href="guide.html">help guide</a>, or write to <a href="mailto:tosourav6@gmail.com">tosourav6@gmail.com</a>.</p>
+    </div>
+    <div>
+      <details>
+        <summary>If I uninstall Tijori, are my passwords gone?</summary>
+        <p>Not if Drive backup is on (Tijori asks during setup). The backup file stays in your Google Drive. Install Tijori again, tap Restore from Google Drive, pick the file and type your passphrase.</p>
+      </details>
+      <details>
+        <summary>What do I need to restore?</summary>
+        <p>Your master passphrase. That’s all, with “Restore with passphrase only” on, which is the default. If you switch it off for maximum protection, you’ll also need the Secret Key printed on your Emergency Kit.</p>
+      </details>
+      <details>
+        <summary>Can Google read my passwords in Drive?</summary>
+        <p>No. The file is encrypted on your phone before the Drive app ever sees it. Without your passphrase it’s random-looking data.</p>
+      </details>
+      <details>
+        <summary>What if I forget my passphrase?</summary>
+        <p>Nobody can reset it, not even us. That’s what makes the vault safe. Write it on paper and keep it at home. If you made nominee cards, your family can still open the Family room.</p>
+      </details>
+      <details>
+        <summary>Can I move my passwords from Google Password Manager?</summary>
+        <p>Yes. Export them from Google Password Manager (⚙ Settings → Export passwords), then in Tijori go to Settings → Import passwords. Delete the exported file afterwards; it isn’t encrypted.</p>
+      </details>
+      <details>
+        <summary>Does it work without internet?</summary>
+        <p>Yes, completely. Tijori never needs the internet. The Drive copy updates whenever the Google Drive app is online.</p>
+      </details>
+      <details>
+        <summary>Is it really free?</summary>
+        <p>Yes. No ads, no premium tier, no account.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="final" id="get" aria-labelledby="get-title">
+  <div class="wrap final-inner">
+    <h2 id="get-title">One passphrase. Every password. Never lost.</h2>
+    <p>Tijori is for Android 9 and newer. Install it from Google Play, or download the APK from GitHub.</p>
+    <div class="final-actions">
+      <a class="btn btn-ink btn-lg" href="https://play.google.com/store/apps/details?id=com.tijoriapp.vault" rel="noopener noreferrer"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>Get it on Google Play</a>
+      <a class="btn btn-outline-ink btn-lg" href="https://github.com/souravroy0708/tijori-android/releases/latest" rel="noopener noreferrer"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Download the APK</a>
+    </div>
+    <p class="final-fine">New to it? Start with the <a href="guide.html">help guide</a>. Read the <a href="privacy.html">privacy policy</a> before you install.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div class="footer-about">
+      <p class="footer-name">Tijori</p>
+      <p>A password vault for Indian families. Your passwords stay locked on your phone, with an encrypted copy in your own Google Drive.</p>
+    </div>
+    <nav class="footer-col" aria-label="Product">
+      <h2>Product</h2>
+      <a href="#backup">Google Drive backup</a>
+      <a href="#features">Features</a>
+      <a href="compare.html">Compare with other apps</a>
+      <a href="#get">Get the app</a>
+    </nav>
+    <nav class="footer-col" aria-label="Help">
+      <h2>Help</h2>
+      <a href="guide.html">Help guide</a>
+      <a href="guide.html#reinstall">Restore after reinstall</a>
+      <a href="privacy.html">Privacy policy</a>
+      <a href="https://github.com/souravroy0708/tijori-android" rel="noopener noreferrer">Source on GitHub</a>
+      <a href="mailto:tosourav6@gmail.com">tosourav6@gmail.com</a>
+    </nav>
+  </div>
+  <div class="wrap footer-base">
+    <p>Tijori will never ask for your passphrase, Secret Key or any password. Anyone who does is not us.</p>
+    <p>© <span data-year>2026</span> Tijori. Made in Hyderabad by Sourav Roy.</p>
+  </div>
+</footer>
+
+</body>
+</html>

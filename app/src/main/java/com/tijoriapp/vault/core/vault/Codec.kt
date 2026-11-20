@@ -19,6 +19,9 @@ object Codec {
         .put("fields", JSONArray().apply {
             item.fields.forEach { put(JSONObject().put("id", it.id).put("l", it.label).put("k", it.kind.name).put("v", it.value)) }
         })
+        .put("hist", JSONArray().apply {
+            item.history.forEach { put(JSONObject().put("v", it.value).put("at", it.replacedAt)) }
+        })
         .toString().toByteArray(Charsets.UTF_8)
 
     fun decode(id: String, room: Room, bytes: ByteArray): VaultItem {
@@ -33,6 +36,9 @@ object Codec {
                 id = f.optString("id").ifEmpty { java.util.UUID.randomUUID().toString() },
             )
         }
+        val history = j.optJSONArray("hist")?.let { h ->
+            (0 until h.length()).map { i -> h.getJSONObject(i).let { PastPassword(it.optString("v"), it.optLong("at")) } }
+        } ?: emptyList()
         val apps = j.optJSONArray("apps")?.let { a -> (0 until a.length()).map { a.getString(it) } } ?: emptyList()
         return VaultItem(
             id = id,
@@ -47,6 +53,7 @@ object Codec {
             updatedAt = j.optLong("updated"),
             passwordChangedAt = j.optLong("pwChanged", j.optLong("created")),
             lastUsedAt = j.optLong("used"),
+            history = history,
         )
     }
 }

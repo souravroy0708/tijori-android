@@ -140,6 +140,9 @@ fun MainShell(app: TijoriApp) {
                 Dest.ChangePassphrase -> ChangePassphraseScreen(app)
                 Dest.About -> AboutScreen()
                 is Dest.Nominee -> NomineeScreen(app, practice = key.practice, onClose = { nav.pop() })
+                Dest.DriveBackup -> DriveBackupScreen(app)
+                Dest.Import -> ImportScreen(app)
+                is Dest.Help -> HelpScreen(key.topic, onBack = { nav.pop() })
                 else -> {}
             }
         }

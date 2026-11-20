@@ -51,6 +51,10 @@ object Lang {
         "Copied. Clears in %s s" to "कॉपी हुआ। %s सेकंड में मिट जाएगा",
         "Nothing here yet" to "अभी यहाँ कुछ नहीं है",
         "Your vault, only on this phone" to "आपकी तिजोरी, सिर्फ़ इस फ़ोन पर",
+        "Restore from Google Drive" to "Google Drive से वापस लाएँ",
+        "Google Drive backup" to "Google Drive बैकअप",
+        "Import passwords" to "पासवर्ड इम्पोर्ट करें",
+        "Help & guide" to "मदद और गाइड",
     )
 
     fun t(en: String): String = if (current == "hi") HI[en] ?: en else en

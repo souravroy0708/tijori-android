@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- No cookies, no analytics, no third-party fonts or scripts. Everything loads from this site only. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#0F1235">
+  <title>Tijori help guide: Drive backup, restore after reinstall, import, autofill</title>
+  <meta name="description" content="Step-by-step help for Tijori: turn on Google Drive backup, restore after uninstalling, import from Google Password Manager, set up autofill and nominee cards.">
+  <link rel="canonical" href="https://souravroy0708.github.io/tijori-android/guide.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Tijori">
+  <meta property="og:title" content="Tijori help guide: Drive backup, restore after reinstall, import, autofill">
+  <meta property="og:description" content="Step-by-step help for Tijori: turn on Google Drive backup, restore after uninstalling, import from Google Password Manager, set up autofill and nominee cards.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/anek-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/mukta-regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/site.css">
+  <link rel="stylesheet" href="assets/tijori.css">
+  <script src="assets/site.js" defer></script>
+</head>
+<body>
+
+<svg class="sprite" width="0" height="0" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7.5 3v6c0 4.6-3.2 8-7.5 9-4.3-1-7.5-4.4-7.5-9V6z"/><path d="M8.8 12.2l2.2 2.2 4.2-4.4"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18.5a4.5 4.5 0 0 1-.6-9A6 6 0 0 1 17.6 9 4.3 4.3 0 0 1 17.5 18.5z"/><path d="M9.3 13.6l2 2 3.6-3.8"/></symbol>
+  <symbol id="i-cloud-off" viewBox="0 0 24 24"><path d="M3 3l18 18M8.5 6.3A6 6 0 0 1 17.6 10 4 4 0 0 1 20 17.3M16.5 18H7a4.5 4.5 0 0 1-1.6-8.7"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4.5"/><path d="M11.2 11.8L20 3M16.5 6.5l2.5 2.5M14 9l2 2"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.5"/><path d="M2.5 20c.6-3.5 3.3-5.5 6.5-5.5s5.9 2 6.5 5.5"/><path d="M16 5.2a3.4 3.4 0 0 1 0 6.6M18 14.8c1.9.8 3.1 2.6 3.5 5.2"/></symbol>
+  <symbol id="i-finger" viewBox="0 0 24 24"><path d="M6.5 6.5A8 8 0 0 1 20 12v1M4 11a8 8 0 0 1 .7-3M8 20.5c1.2-2 2-4.6 2-8.5a2 2 0 0 1 4 0c0 1.3-.1 2.6-.3 3.8M12 12c0 4-1 7-2.5 9M16 15.5c-.3 2-.8 3.8-1.6 5.2M8 12a4 4 0 0 1 8 0"/></symbol>
+  <symbol id="i-import" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 11v6M9 14l3 3 3-3"/></symbol>
+  <symbol id="i-fill" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M7 12h.01M10.5 12h.01M14 12h.01M17 10v4"/></symbol>
+  <symbol id="i-health" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.4-7.5-10A4.2 4.2 0 0 1 12 7.6 4.2 4.2 0 0 1 19.5 10c0 5.6-7.5 10-7.5 10z"/><path d="M8 12h2.5l1-2 2 4 1-2H16"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-history" viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 3.5v5h5M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="12" height="12" rx="2.5"/><path d="M15.5 8.5V6a2.5 2.5 0 0 0-2.5-2.5H6A2.5 2.5 0 0 0 3.5 6v7A2.5 2.5 0 0 0 6 15.5h2.5"/></symbol>
+  <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 5.1A9.8 9.8 0 0 1 12 5c5.5 0 9 7 9 7a16 16 0 0 1-2.6 3.4M6.5 6.6C4.1 8.2 3 12 3 12s3.5 7 9 7a9 9 0 0 0 4.2-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="M8.5 7L3.5 12l5 5M15.5 7l5 5-5 5"/></symbol>
+  <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M2.5 9a14 14 0 0 1 19 0M5.5 12.5a9.5 9.5 0 0 1 13 0M8.8 16a4.8 4.8 0 0 1 6.4 0"/><circle cx="12" cy="19.5" r=".9"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></symbol>
+  <symbol id="i-bank" viewBox="0 0 24 24"><path d="M3 9.5L12 4l9 5.5M5 10v7M9.5 10v7M14.5 10v7M19 10v7M3.5 20h17"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3.5 7l8.5 6 8.5-6"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8M4 3.5V8h4.5M4 13a8 8 0 0 0 14.3 4.9L20 16M20 20.5V16h-4.5"/></symbol>
+</svg>
+
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="brand" href="index.html" aria-label="Tijori home">
+      <img class="brand-mark" src="assets/favicon.svg" alt="" width="44" height="44">
+      <span class="brand-text"><b>Tijori</b><span>Chaabi sirf aapke paas</span></span>
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="index.html#backup">Drive backup</a>
+      <a href="index.html#features">Features</a>
+      <a href="compare.html">Compare</a>
+      <a href="guide.html">Help guide</a>
+      <a href="index.html#faq">Questions</a>
+    </nav>
+    <a class="btn btn-haldi header-cta" href="index.html#get">Get the app</a>
+    <details class="menu">
+      <summary aria-label="Open menu"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg></summary>
+      <nav class="menu-panel" aria-label="Main">
+      <a href="index.html#backup">Drive backup</a>
+      <a href="index.html#features">Features</a>
+      <a href="compare.html">Compare</a>
+      <a href="guide.html">Help guide</a>
+      <a href="index.html#faq">Questions</a>
+        <a class="btn btn-haldi" href="index.html#get">Get the app</a>
+      </nav>
+    </details>
+  </div>
+</header>
+
+<main id="main">
+<section class="page-hero" aria-labelledby="t">
+  <div class="wrap">
+    <h1 id="t">Help guide</h1>
+    <p class="lede">Step-by-step answers for setting up backup, restoring after a reinstall, importing from Google and filling passwords. The same guide is inside the app under Settings → Help &amp; guide.</p>
+  </div>
+</section>
+<section class="sec sec-white" aria-label="Guide">
+  <div class="wrap guide-grid">
+    <nav class="toc" aria-labelledby="toc-t">
+      <h2 id="toc-t">On this page</h2>
+      <ol>
+        <li><a href="#start">Get started in two minutes</a></li>
+        <li><a href="#drive">Turn on Google Drive backup</a></li>
+        <li><a href="#reinstall">Uninstalled? Get everything back</a></li>
+        <li><a href="#newphone">Moving to a new phone</a></li>
+        <li><a href="#import">Import from Google Password Manager</a></li>
+        <li><a href="#autofill">Fill passwords in apps and Chrome</a></li>
+        <li><a href="#rooms">The three rooms</a></li>
+        <li><a href="#family">Nominee cards for your family</a></li>
+        <li><a href="#forgot">Forgot your passphrase?</a></li>
+      </ol>
+    </nav>
+    <div>
+      <section class="gsec" id="start" aria-labelledby="start-t">
+        <h2 id="start-t">Get started in two minutes</h2>
+        <p>The order that protects you best.</p>
+        <ol class="do">
+          <li><span>Install Tijori and tap <b>Create my Tijori</b>.</span></li>
+          <li><span>Pick a passphrase: Tijori suggests 5 random words. <b>Write them on paper</b> and keep it at home.</span></li>
+          <li><span>Tap <b>Back up to Google Drive</b> when asked (details below).</span></li>
+          <li><span>On the last screen, tap <b>Import from Google Password Manager</b>, or <b>Add my Gmail</b> first.</span></li>
+        </ol>
+        <p class="tip">Your email account resets every other password. Give it your strongest password and turn on 2-step verification.</p>
+      </section>
+      <section class="gsec" id="drive" aria-labelledby="drive-t">
+        <h2 id="drive-t">Turn on Google Drive backup</h2>
+        <p>Tijori keeps one file, <b>Tijori-backup.tijori</b>, in your Drive and updates it a few seconds after every change. Google can store it but can’t read it.</p>
+        <ol class="do">
+          <li><span>Open <b>Settings → Google Drive backup</b> (or do it during setup).</span></li>
+          <li><span>Tap <b>Back up to Google Drive</b>. Android’s “Save to” screen opens.</span></li>
+          <li><span>Tap <span class="kbd">☰</span> at the top-left and choose <b>Drive</b>.</span></li>
+          <li><span>Open a folder, or stay in My Drive, and tap <b>Save</b>.</span></li>
+          <li><span>Back in Tijori you’ll see <b>Backed up</b>, with the time. That’s it.</span></li>
+        </ol>
+        <p class="tip">Don’t see Drive in the list? Install the Google Drive app from Play Store and sign in with your Gmail, then try again.</p>
+      </section>
+      <section class="gsec" id="reinstall" aria-labelledby="reinstall-t">
+        <h2 id="reinstall-t">Uninstalled? Get everything back</h2>
+        <p>Works the same after a phone reset or on a new phone.</p>
+        <ol class="do">
+          <li><span>Install Tijori again from Google Play.</span></li>
+          <li><span>On the first screen tap <b>Restore from Google Drive</b>.</span></li>
+          <li><span>Tap <b>Find my backup</b>, then <span class="kbd">☰</span> → <b>Drive</b> → <b>Tijori-backup.tijori</b>.</span></li>
+          <li><span>Type your master passphrase and tap <b>Restore my vault</b>.</span></li>
+          <li><span>Leave <b>Keep backing up to this file</b> ticked so backups carry on.</span></li>
+        </ol>
+        <p class="tip">If you turned off “Restore with passphrase only”, step 4 also asks for the Secret Key printed on your Emergency Kit.</p>
+      </section>
+      <section class="gsec" id="newphone" aria-labelledby="newphone-t">
+        <h2 id="newphone-t">Moving to a new phone</h2>
+        <ol class="do">
+          <li><span>On the new phone, follow <a href="#reinstall">the reinstall steps</a> above.</span></li>
+          <li><span>Turn fingerprint unlock on again in Settings: it is tied to each phone’s secure chip.</span></li>
+          <li><span>Choose Tijori as the autofill service again (see below).</span></li>
+          <li><span>On the old phone, open Settings → <b>Erase this vault</b> once the new phone works. Your Drive file is untouched.</span></li>
+        </ol>
+      </section>
+      <section class="gsec" id="import" aria-labelledby="import-t">
+        <h2 id="import-t">Import from Google Password Manager</h2>
+        <p>Bring your existing passwords across in one go.</p>
+        <ol class="do">
+          <li><span>Open <b>Google Password Manager</b> (Android Settings → Google → Autofill → Google Password Manager, or passwords.google.com on a computer).</span></li>
+          <li><span>Tap <b>⚙ Settings → Export passwords → Export</b> and save the file to Downloads.</span></li>
+          <li><span>In Tijori open <b>Settings → Import passwords → Choose file</b> and pick that file.</span></li>
+          <li><span>Check the preview and tap <b>Import</b>. Passwords already in Tijori are skipped.</span></li>
+          <li><span><b>Delete the exported file</b> from Downloads (and your laptop).</span></li>
+        </ol>
+        <p class="tip warn">The exported file isn’t encrypted. Anyone who opens it can read every password, so delete it right after importing.</p>
+      </section>
+      <section class="gsec" id="autofill" aria-labelledby="autofill-t">
+        <h2 id="autofill-t">Fill passwords in apps and Chrome</h2>
+        <ol class="do">
+          <li><span>In Tijori open <b>Settings → Autofill service</b> and choose <b>Tijori</b>.</span></li>
+          <li><span>In Chrome tap <b>⋮ → Settings → Autofill services</b> and pick <b>Autofill using another service</b>, then restart Chrome.</span></li>
+          <li><span>Tap any login box, then the Tijori suggestion, and unlock.</span></li>
+        </ol>
+        <p class="tip">Tijori fills only on the exact app or website you saved. If it doesn’t offer to fill a site you trust, open the login in Tijori and check its Website field.</p>
+      </section>
+      <section class="gsec" id="rooms" aria-labelledby="rooms-t">
+        <h2 id="rooms-t">The three rooms</h2>
+        <p><b>Everyday</b> holds email, shopping, social and Wi-Fi, and opens with the vault. <b>Money</b> holds banking, cards, UPI and investments; it asks for your fingerprint every time and locks itself after a minute. <b>Family</b> holds insurance, locker and will details, which your nominees can open with their cards.</p>
+        <p class="tip">For cards, save only the last 4 digits and a PIN hint. Never save a real PIN, CVV or OTP anywhere.</p>
+      </section>
+      <section class="gsec" id="family" aria-labelledby="family-t">
+        <h2 id="family-t">Nominee cards for your family</h2>
+        <ol class="do">
+          <li><span>Open the <b>Family</b> tab and choose how many cards (2 of 3 is usual).</span></li>
+          <li><span>Print the cards and give one each to people you trust.</span></li>
+          <li><span>Save the Family package somewhere they can reach, for example a shared Drive folder.</span></li>
+          <li><span>Do the practice drill together once so they know what to do.</span></li>
+        </ol>
+        <p class="tip">One card alone reveals nothing. If a card is lost, tap “Cancel all cards” and make a new set.</p>
+      </section>
+      <section class="gsec" id="forgot" aria-labelledby="forgot-t">
+        <h2 id="forgot-t">Forgot your passphrase?</h2>
+        <p>Nobody can reset it, not even us: that’s what keeps your vault safe. Try variations first: capital letters, the spaces between words, an older passphrase. If nominee cards exist, your family can still open the Family room. Otherwise the vault can’t be opened, and you start a new one.</p>
+        <p class="tip warn">Keep your passphrase written on paper at home, next to your important documents.</p>
+      </section>
+      <section class="gsec" id="contact" aria-labelledby="contact-t">
+        <h2 id="contact-t">Still stuck?</h2>
+        <p>Write to <a href="mailto:tosourav6@gmail.com">tosourav6@gmail.com</a> with what you tapped and what you saw. Never send your passphrase, Secret Key or any password: we will never ask for them.</p>
+      </section>
+    </div>
+  </div>
+</section>
+</main>
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div class="footer-about">
+      <p class="footer-name">Tijori</p>
+      <p>A password vault for Indian families. Your passwords stay locked on your phone, with an encrypted copy in your own Google Drive.</p>
+    </div>
+    <nav class="footer-col" aria-label="Product">
+      <h2>Product</h2>
+      <a href="index.html#backup">Google Drive backup</a>
+      <a href="index.html#features">Features</a>
+      <a href="compare.html">Compare with other apps</a>
+      <a href="index.html#get">Get the app</a>
+    </nav>
+    <nav class="footer-col" aria-label="Help">
+      <h2>Help</h2>
+      <a href="guide.html">Help guide</a>
+      <a href="guide.html#reinstall">Restore after reinstall</a>
+      <a href="privacy.html">Privacy policy</a>
+      <a href="https://github.com/souravroy0708/tijori-android" rel="noopener noreferrer">Source on GitHub</a>
+      <a href="mailto:tosourav6@gmail.com">tosourav6@gmail.com</a>
+    </nav>
+  </div>
+  <div class="wrap footer-base">
+    <p>Tijori will never ask for your passphrase, Secret Key or any password. Anyone who does is not us.</p>
+    <p>© <span data-year>2026</span> Tijori. Made in Hyderabad by Sourav Roy.</p>
+  </div>
+</footer>
+
+</body>
+</html>

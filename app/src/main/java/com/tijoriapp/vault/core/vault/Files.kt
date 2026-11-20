@@ -9,33 +9,41 @@ data class SealedRow(val id: String, val room: Room, val sealed: ByteArray, val 
 
 /**
  * The full backup (.tijori). It's a copy of the already-encrypted rows plus the header, so making one
- * never decrypts anything. Restoring needs this file + Secret Key + passphrase.
+ * never decrypts anything. Restoring needs this file + passphrase + Secret Key, or (when "easy restore"
+ * is on) this file + passphrase only, through the [RecoveryEnvelope] inside it.
  */
 object BackupFile {
     const val FORMAT = "tijori.backup"
 
-    fun write(header: VaultHeader, rows: List<SealedRow>): ByteArray = JSONObject()
+    fun write(header: VaultHeader, rows: List<SealedRow>, recovery: RecoveryEnvelope? = null, owner: String = ""): ByteArray = JSONObject()
         .put("format", FORMAT)
         .put("version", 2)
         .put("exportedAt", System.currentTimeMillis())
+        .put("owner", owner)
         .put("header", header.toJson())
+        .apply { if (recovery != null) put("recovery", recovery.toJson()) }
         .put("items", JSONArray().apply {
             rows.forEach { put(JSONObject().put("id", it.id).put("room", it.room.name).put("ct", Bytes.b64(it.sealed)).put("updated", it.updatedAt)) }
         })
         .toString().toByteArray(Charsets.UTF_8)
 
-    data class Parsed(val header: VaultHeader, val rows: List<SealedRow>, val exportedAt: Long)
+    data class Parsed(val header: VaultHeader, val rows: List<SealedRow>, val exportedAt: Long, val recovery: RecoveryEnvelope? = null, val owner: String = "") {
+        /** True when the passphrase alone can restore it (no Emergency Kit needed). */
+        val easyRestore: Boolean get() = recovery != null
+    }
 
     /** Throws IllegalArgumentException with a friendly message when the file isn't a Tijori backup. */
     fun read(bytes: ByteArray): Parsed {
-        val j = runCatching { JSONObject(String(bytes, Charsets.UTF_8)) }.getOrNull()
+        val text = JsonText.firstObject(String(bytes, Charsets.UTF_8))
+        val j = text?.let { runCatching { JSONObject(it) }.getOrNull() }
             ?: throw IllegalArgumentException("This file isn't a Tijori backup")
         require(j.optString("format") == FORMAT) {
             if (j.optString("format") == LegacyPackage.FORMAT) "This is a Family package. Open it from \"I'm a nominee\"." else "This file isn't a Tijori backup"
         }
         require(j.optInt("version") == 2) { "This backup was made by a newer Tijori. Please update the app." }
         val header = VaultHeader.fromJson(j.getJSONObject("header"))
-        return Parsed(header, readRows(j.getJSONArray("items")), j.optLong("exportedAt"))
+        val recovery = j.optJSONObject("recovery")?.let { runCatching { RecoveryEnvelope.fromJson(it) }.getOrNull() }
+        return Parsed(header, readRows(j.getJSONArray("items")), j.optLong("exportedAt"), recovery, j.optString("owner"))
     }
 
     internal fun readRows(a: JSONArray): List<SealedRow> = (0 until a.length()).map {
@@ -82,5 +90,37 @@ object LegacyPackage {
     fun open(pkg: Parsed, legacyKey: ByteArray): List<VaultItem>? {
         if (!Bytes.equal(VaultCrypto.legacyCheck(legacyKey), pkg.check)) return null
         return pkg.rows.map { VaultCrypto.open(legacyKey, pkg.vaultId, it.id, Room.LEGACY, it.sealed) }
+    }
+}
+
+/**
+ * Cloud folders (Google Drive, OneDrive) don't always truncate a file when it's overwritten in place, so a
+ * shorter new backup can be followed by the tail of the old one. This returns only the first complete
+ * JSON object, so such a file still reads correctly.
+ */
+object JsonText {
+    fun firstObject(text: String): String? {
+        val start = text.indexOf('{')
+        if (start < 0) return null
+        var depth = 0
+        var inString = false
+        var escaped = false
+        for (i in start until text.length) {
+            val c = text[i]
+            if (inString) {
+                when {
+                    escaped -> escaped = false
+                    c == '\\' -> escaped = true
+                    c == '"' -> inString = false
+                }
+                continue
+            }
+            when (c) {
+                '"' -> inString = true
+                '{' -> depth++
+                '}' -> { depth--; if (depth == 0) return text.substring(start, i + 1) }
+            }
+        }
+        return null
     }
 }

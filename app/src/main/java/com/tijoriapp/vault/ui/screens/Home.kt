@@ -54,6 +54,11 @@ fun HomeTab(app: TijoriApp) {
                     style = MaterialTheme.typography.titleLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text(LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, d MMMM", Locale.ENGLISH)), color = MutedOnDark, style = MaterialTheme.typography.bodySmall)
             }
+            Box(Modifier.size(44.dp).clip(CircleShape).background(Ink3).clickable(role = Role.Button) { nav.push(Dest.Help()) }
+                .semantics { contentDescription = "Help and guide" }, contentAlignment = Alignment.Center) {
+                Icon(Icons.Filled.Help, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
+            }
+            Spacer(Modifier.width(8.dp))
             Box(Modifier.size(44.dp).clip(CircleShape).background(Ink3).clickable(role = Role.Button) { app.session.lock() }
                 .semantics { contentDescription = "Lock Tijori now" }, contentAlignment = Alignment.Center) {
                 Icon(Icons.Filled.Lock, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
@@ -74,6 +79,8 @@ fun HomeTab(app: TijoriApp) {
                     if (report.needsAttention == 0) Mint else Coral, onClick = { nav.tab = MainTab.Security })
             }
         }
+        Spacer(Modifier.height(14.dp))
+        BackupStatusChip(app, onDark = true) { nav.push(Dest.DriveBackup) }
     }) {
         OutlinedTextField(
             value = query, onValueChange = { query = it }, singleLine = true,
@@ -89,7 +96,7 @@ fun HomeTab(app: TijoriApp) {
             val found = items.filter { it.matches(query) }.sortedBy { it.title.lowercase() }
             SectionLabel("${found.size} found")
             if (!state.moneyOpen && (state.counts[Room.MONEY] ?: 0) > 0) Banner("Money room items are hidden while it's locked.", action = "Open") { nav.push(Dest.RoomList(Room.MONEY)) }
-            found.forEach { ItemRow(it) { nav.push(Dest.Item(it.id)) } }
+            found.forEach { ItemRow(it, onCopy = quickCopy(app, it)) { nav.push(Dest.Item(it.id)) } }
             if (found.isEmpty()) EmptyState(Icons.Filled.SearchOff, "No matches", "Search looks at titles, usernames and websites. Secrets are never searched.")
             return@HeroPage
         }
@@ -105,19 +112,20 @@ fun HomeTab(app: TijoriApp) {
         val favs = items.filter { it.favorite }.sortedBy { it.title.lowercase() }
         if (favs.isNotEmpty()) {
             SectionLabel(t("Favourites"))
-            favs.forEach { ItemRow(it) { nav.push(Dest.Item(it.id)) } }
+            favs.forEach { ItemRow(it, onCopy = quickCopy(app, it)) { nav.push(Dest.Item(it.id)) } }
         }
         val recent = items.filter { it.lastUsedAt > 0 && !it.favorite }.sortedByDescending { it.lastUsedAt }.take(5)
         if (recent.isNotEmpty()) {
             SectionLabel(t("Recently used"))
-            recent.forEach { ItemRow(it) { nav.push(Dest.Item(it.id)) } }
+            recent.forEach { ItemRow(it, onCopy = quickCopy(app, it)) { nav.push(Dest.Item(it.id)) } }
         }
         if (items.isEmpty()) {
-            EmptyState(Icons.Filled.Shield, "Start with what matters", "Add your email first: it unlocks everything else. Then your bank, and your insurance for the family.",
-                action = "Add your first item") { nav.push(Dest.PickType) }
+            EmptyState(Icons.Filled.Shield, "Start with what matters", "Add your Gmail first: it unlocks everything else. Already saving passwords in Google? Bring them all across in one go.",
+                action = "Add my Gmail") { nav.push(Dest.Edit(null, com.tijoriapp.vault.core.vault.ItemType.EMAIL)) }
+            GhostButton("Import from Google Password Manager", icon = Icons.Filled.Description) { nav.push(Dest.Import) }
         } else if (favs.isEmpty() && recent.isEmpty()) {
             SectionLabel(t("All items"))
-            items.sortedByDescending { it.updatedAt }.take(8).forEach { ItemRow(it) { nav.push(Dest.Item(it.id)) } }
+            items.sortedByDescending { it.updatedAt }.take(8).forEach { ItemRow(it, onCopy = quickCopy(app, it)) { nav.push(Dest.Item(it.id)) } }
         }
     }
 }
@@ -130,9 +138,14 @@ private fun SetupNudges(app: TijoriApp, host: Host) {
     val total = vault.counts.values.sum()
     val backupOld = total > 0 && System.currentTimeMillis() - settings.lastBackupAt > 30L * 86_400_000L
     when {
-        settings.kitSavedAt == 0L -> Banner("Save your Emergency Kit. Without it you can't restore on a new phone.", action = "Settings") { nav.tab = MainTab.Settings }
-        backupOld -> Banner(if (settings.lastBackupAt == 0L) "You have no backup yet. If this phone is lost, so is the vault." else "Last backup was ${relativeTime(settings.lastBackupAt)}.",
-            action = "Back up") { nav.tab = MainTab.Settings }
+        settings.driveOn && settings.driveError.isNotEmpty() -> Banner("Drive backup stopped: ${settings.driveError}", BadBg, BadText, Icons.Filled.SyncProblem, action = "Fix") {
+            nav.push(Dest.DriveBackup)
+        }
+        !settings.driveOn && total > 0 -> Banner("Not backed up. If you uninstall Tijori or lose this phone, these passwords are gone.", BadBg, BadText, Icons.Filled.CloudOff,
+            action = "Back up") { nav.push(Dest.DriveBackup) }
+        settings.kitSavedAt == 0L && !app.session.easyRestoreOn -> Banner("Save your Emergency Kit. Your Drive backup needs it to restore.", action = "Save") { nav.push(Dest.DriveBackup) }
+        !settings.driveOn && backupOld -> Banner(if (settings.lastBackupAt == 0L) "You have no backup yet. If this phone is lost, so is the vault." else "Last backup was ${relativeTime(settings.lastBackupAt)}.",
+            action = "Back up") { nav.push(Dest.DriveBackup) }
         !host.autofillEnabled && total >= 3 -> Banner("Let Tijori fill logins in apps and Chrome.", GoodBg, GoodText, Icons.Filled.Password, action = "Turn on") { host.openAutofillSettings() }
         (vault.counts[Room.LEGACY] ?: 0) > 0 && settings.cardsMadeAt == 0L ->
             Banner("Your Family room has items but no nominee cards yet.", GoodBg, GoodText, Icons.Filled.FamilyRestroom, action = "Set up") { nav.tab = MainTab.Family }
@@ -157,8 +170,18 @@ fun RoomTile(room: Room, count: Int, locked: Boolean, modifier: Modifier = Modif
     }
 }
 
+/** One-tap copy of an item's password from a list (null when it has none). */
+fun quickCopy(app: TijoriApp, item: VaultItem): (() -> Unit)? {
+    val pw = item.password ?: return null
+    return {
+        app.copy("Password", pw, sensitive = true)
+        app.session.markUsed(item.id)
+        Toasts.show(t("Copied. Clears in %s s", app.prefs.now.clipboardSeconds))
+    }
+}
+
 @Composable
-fun ItemRow(item: VaultItem, trailing: (@Composable () -> Unit)? = null, onClick: () -> Unit) {
+fun ItemRow(item: VaultItem, trailing: (@Composable () -> Unit)? = null, onCopy: (() -> Unit)? = null, onClick: () -> Unit) {
     Row(
         Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(CardBg).clickable(onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 12.dp),
@@ -172,6 +195,9 @@ fun ItemRow(item: VaultItem, trailing: (@Composable () -> Unit)? = null, onClick
         }
         if (item.favorite) Icon(Icons.Filled.Star, contentDescription = "Favourite", tint = Haldi, modifier = Modifier.size(18.dp))
         trailing?.invoke()
+        if (onCopy != null) IconButton(onClick = onCopy, modifier = Modifier.size(40.dp)) {
+            Icon(Icons.Filled.ContentCopy, contentDescription = "Copy password for ${item.title}", tint = Muted, modifier = Modifier.size(20.dp))
+        }
     }
 }
 
@@ -207,7 +233,7 @@ private fun RoomList(app: TijoriApp, room: Room, state: com.tijoriapp.vault.data
                     if ((state.counts[room] ?: 0) > 6) PlainInput(query, onQuery, "Search ${room.en}")
                 }
             }
-            items(list, key = { it.id }) { ItemRow(it) { nav.push(Dest.Item(it.id)) } }
+            items(list, key = { it.id }) { ItemRow(it, onCopy = quickCopy(app, it)) { nav.push(Dest.Item(it.id)) } }
             if (list.isEmpty() && query.isBlank()) item {
                 EmptyState(room.icon(), t("Nothing here yet"), roomEmpty(room), action = t("Add")) { nav.push(Dest.Edit(null, room = room)) }
             }

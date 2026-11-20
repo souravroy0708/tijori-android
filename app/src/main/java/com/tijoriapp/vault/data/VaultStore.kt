@@ -123,6 +123,8 @@ class VaultStore(context: Context) : SQLiteOpenHelper(context.applicationContext
         const val K_SECRET_KEY = "secret_key_device"
         const val K_BIO_MAIN = "bio_main"
         const val K_BIO_MONEY = "bio_money"
+        /** Easy-restore envelope (Secret Key sealed by the passphrase alone). Present = easy restore on. */
+        const val K_RECOVERY = "recovery"
 
         /** The pre-release prototype kept the Secret Key in plain SharedPreferences. Remove all of it. */
         fun purgePrototype(context: Context) {

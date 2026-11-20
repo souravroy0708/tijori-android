@@ -45,6 +45,7 @@ fun SettingsTab(app: TijoriApp) {
     var erase by remember { mutableStateOf(false) }
     var editName by remember { mutableStateOf(false) }
     var restoreOpen by remember { mutableStateOf(false) }
+    var generator by remember { mutableStateOf(false) }
 
     HeroPage(hero = {
         Text(t("Settings"), color = Color.White, style = MaterialTheme.typography.headlineLarge)
@@ -74,15 +75,27 @@ fun SettingsTab(app: TijoriApp) {
 
         SectionLabel("Backup")
         AppCard {
-            SettingRow(Icons.Filled.Backup, "Save encrypted backup", if (s.lastBackupAt == 0L) "Never backed up" else "Last: ${relativeTime(s.lastBackupAt)}", onClick = {
+            SettingRow(Icons.Filled.CloudUpload, t("Google Drive backup"), when {
+                !s.driveOn -> "Off · tap to protect against uninstall or a lost phone"
+                s.driveError.isNotEmpty() -> "Needs attention · ${s.driveError}"
+                else -> "On · backed up ${relativeTime(s.driveBackupAt)}"
+            }, trailing = { if (s.driveOn && s.driveError.isEmpty()) Chip("On", GoodBg, GoodText) else Chip(if (s.driveOn) "Fix" else "Off", WarnBg, WarnText) },
+                onClick = { nav.push(Dest.DriveBackup) })
+            SettingRow(Icons.Filled.Backup, "Save a backup file", if (s.lastBackupAt == 0L) "Never backed up" else "Last: ${relativeTime(s.lastBackupAt)}", onClick = {
                 val date = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
                 host.createFile("Tijori-backup-$date.tijori", "application/octet-stream", write = { it.write(app.session.backupBytes()) },
                     onDone = { ok -> if (ok) { app.prefs.markBackup(); Toasts.show("Backup saved. Keep a copy off this phone.") } })
             })
-            Text("Save it to a pen drive, laptop or your own cloud folder. It's encrypted: without your Secret Key and passphrase it's just noise.",
+            Text("An extra copy for a pen drive or laptop. It's encrypted: without your passphrase it's just noise.",
                 style = MaterialTheme.typography.bodySmall, color = Muted)
             SettingRow(Icons.Filled.Print, "Emergency Kit (PDF)", if (s.kitSavedAt == 0L) "Not saved yet" else "Saved ${relativeTime(s.kitSavedAt)}", onClick = { kitReauth = true })
             SettingRow(Icons.Filled.Restore, "Replace with a backup", "Restore a .tijori file over this vault", onClick = { restore = true })
+        }
+
+        SectionLabel("Your passwords")
+        AppCard {
+            SettingRow(Icons.Filled.Description, t("Import passwords"), "From Google Password Manager, Chrome, Bitwarden, 1Password…", onClick = { nav.push(Dest.Import) })
+            SettingRow(Icons.Filled.Casino, t("Generate password"), "Words, random characters or a PIN", onClick = { generator = true })
         }
 
         SectionLabel("Appearance")
@@ -96,8 +109,9 @@ fun SettingsTab(app: TijoriApp) {
 
         SectionLabel("About")
         AppCard {
+            SettingRow(Icons.Filled.Help, t("Help & guide"), "Backup, reinstall, autofill, new phone", onClick = { nav.push(Dest.Help()) })
             SettingRow(Icons.Filled.Info, "About, privacy & licences", null, onClick = { nav.push(Dest.About) })
-            SettingRow(Icons.Filled.DeleteForever, "Erase this vault", "Deletes everything on this phone. Backups elsewhere are untouched.", onClick = { erase = true })
+            SettingRow(Icons.Filled.DeleteForever, "Erase this vault", "Deletes everything on this phone. Your Drive backup is untouched.", onClick = { erase = true })
         }
     }
 
@@ -130,6 +144,8 @@ fun SettingsTab(app: TijoriApp) {
             onDone = { ok -> if (ok) { app.prefs.markKitSaved(); Toasts.show("Emergency Kit saved. Print it, then delete the file.") } })
     }
 
+    if (generator) GeneratorSheet(app, onDismiss = { generator = false }, onUse = null)
+
     if (bioPass) PassphrasePrompt("Turn on fingerprint unlock", "Your passphrase is needed once to protect the Money room key with your fingerprint.",
         onDismiss = { bioPass = false }) { pass ->
         val r = app.session.enableBiometric(pass)
@@ -153,11 +169,11 @@ fun SettingsTab(app: TijoriApp) {
         AlertDialog(onDismissRequest = { erase = false }, title = { Text("Erase this vault?") },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("Every item, key and setting on this phone is destroyed. This can't be undone. Type ERASE to confirm.")
+                    Text("Every item, key and setting on this phone is destroyed. This can't be undone. Your Google Drive backup file stays in Drive. Type ERASE to confirm.")
                     PlainInput(typed, { typed = it }, "Type ERASE")
                 }
             },
-            confirmButton = { TextButton(enabled = typed.trim() == "ERASE", onClick = { erase = false; app.session.wipeEverything() }) { Text("Erase", color = Coral, fontWeight = FontWeight.Bold) } },
+            confirmButton = { TextButton(enabled = typed.trim() == "ERASE", onClick = { erase = false; app.drive.disconnect(); app.session.wipeEverything() }) { Text("Erase", color = Coral, fontWeight = FontWeight.Bold) } },
             dismissButton = { TextButton(onClick = { erase = false }) { Text(t("Cancel")) } })
     }
 
@@ -209,7 +225,8 @@ fun ChangePassphraseScreen(app: TijoriApp) {
     Column(Modifier.fillMaxSize().background(Paper)) {
         TopBar("Change passphrase", onBack = { nav.pop() })
         ScreenColumn {
-            Banner("Backups you made earlier still open with the old passphrase. Make a fresh backup after changing it.", icon = Icons.Filled.Info)
+            Banner(if (app.prefs.now.driveOn) "Your Google Drive backup is updated to the new passphrase automatically. Copies you saved elsewhere keep the old one."
+                else "Backups you made earlier still open with the old passphrase. Make a fresh backup after changing it.", icon = Icons.Filled.Info)
             SecretInput(current, { current = it; error = null }, "Current passphrase")
             SecretInput(next, { next = it }, "New passphrase", trailingExtra = {
                 IconButton(onClick = { next = app.words.words(6, separator = " "); confirm = "" }) { Icon(Icons.Filled.Casino, contentDescription = "Suggest words") }
@@ -252,7 +269,9 @@ fun TrustScreen(app: TijoriApp) {
             Text("Live checks of this installed copy. Don't take our word for it: you can verify each one in Android Settings.", style = MaterialTheme.typography.bodyMedium, color = Muted)
             AppCard {
                 StatusRow("No internet permission", if (noInternet) "Android blocks every network connection from Tijori" else "This build CAN use the network. Don't trust it.", noInternet)
-                StatusRow("Cloud & device-transfer backup off", if (backupOff) "Google backup never copies your vault" else "Backup flag is on", backupOff)
+                StatusRow("Android cloud backup off", if (backupOff) "Android's automatic backup never copies your vault" else "Backup flag is on", backupOff)
+                StatusRow("Your Drive backup", if (s.driveOn) "Only the encrypted file you chose (${s.driveLabel}), written through Android's file picker" else "Off",
+                    if (s.driveOn) true else null)
                 StatusRow("Keys in secure hardware", when (level) {
                     DeviceKeys.Level.StrongBox -> "StrongBox: a separate security chip"
                     DeviceKeys.Level.TEE -> "Trusted Execution Environment"
@@ -269,7 +288,8 @@ fun TrustScreen(app: TijoriApp) {
                     "• Each room has its own random 256-bit key. Every item is sealed with AES-256-GCM, bound to its vault, item and room.\n" +
                     "• The Money key only enters memory after a fresh fingerprint or passphrase, and is wiped when the room closes.\n" +
                     "• The Family key is split with Shamir's secret sharing for nominee cards.\n" +
-                    "• Titles and usernames are encrypted too: the database only shows how many rows each room has.",
+                    "• Titles and usernames are encrypted too: the database only shows how many rows each room has.\n" +
+                    "• Drive backups are the same encrypted rows. With easy restore, the Secret Key is sealed by Argon2id(passphrase) inside the file.",
                     style = MaterialTheme.typography.bodySmall)
             }
             AppCard(title = "App signature") {
@@ -303,7 +323,8 @@ fun AboutScreen() {
         ScreenColumn {
             AppCard(title = "Privacy policy") {
                 Text("Tijori collects no data. It has no internet permission, no analytics, no ads, no crash reporting and no accounts. " +
-                    "Everything you save stays encrypted on this phone, and in backup files only you create and control. " +
+                    "Everything you save stays encrypted on this phone, and in backup files only you create and control, such as the file in your own Google Drive " +
+                    "(the Google Drive app uploads it; Google receives only encrypted data). " +
                     "Clipboard copies of secrets are marked sensitive and cleared automatically. Contact: ${BuildConfig.SUPPORT_EMAIL}",
                     style = MaterialTheme.typography.bodyMedium)
             }

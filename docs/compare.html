@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- No cookies, no analytics, no third-party fonts or scripts. Everything loads from this site only. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#0F1235">
+  <title>Compare Tijori with Google Password Manager, Bitwarden and 1Password</title>
+  <meta name="description" content="An honest feature and price comparison of Tijori with Google Password Manager, Bitwarden, 1Password and KeePassDX, including what Tijori doesn’t do.">
+  <link rel="canonical" href="https://souravroy0708.github.io/tijori-android/compare.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Tijori">
+  <meta property="og:title" content="Compare Tijori with Google Password Manager, Bitwarden and 1Password">
+  <meta property="og:description" content="An honest feature and price comparison of Tijori with Google Password Manager, Bitwarden, 1Password and KeePassDX, including what Tijori doesn’t do.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/anek-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/mukta-regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/site.css">
+  <link rel="stylesheet" href="assets/tijori.css">
+  <script src="assets/site.js" defer></script>
+</head>
+<body>
+
+<svg class="sprite" width="0" height="0" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7.5 3v6c0 4.6-3.2 8-7.5 9-4.3-1-7.5-4.4-7.5-9V6z"/><path d="M8.8 12.2l2.2 2.2 4.2-4.4"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18.5a4.5 4.5 0 0 1-.6-9A6 6 0 0 1 17.6 9 4.3 4.3 0 0 1 17.5 18.5z"/><path d="M9.3 13.6l2 2 3.6-3.8"/></symbol>
+  <symbol id="i-cloud-off" viewBox="0 0 24 24"><path d="M3 3l18 18M8.5 6.3A6 6 0 0 1 17.6 10 4 4 0 0 1 20 17.3M16.5 18H7a4.5 4.5 0 0 1-1.6-8.7"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4.5"/><path d="M11.2 11.8L20 3M16.5 6.5l2.5 2.5M14 9l2 2"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.5"/><path d="M2.5 20c.6-3.5 3.3-5.5 6.5-5.5s5.9 2 6.5 5.5"/><path d="M16 5.2a3.4 3.4 0 0 1 0 6.6M18 14.8c1.9.8 3.1 2.6 3.5 5.2"/></symbol>
+  <symbol id="i-finger" viewBox="0 0 24 24"><path d="M6.5 6.5A8 8 0 0 1 20 12v1M4 11a8 8 0 0 1 .7-3M8 20.5c1.2-2 2-4.6 2-8.5a2 2 0 0 1 4 0c0 1.3-.1 2.6-.3 3.8M12 12c0 4-1 7-2.5 9M16 15.5c-.3 2-.8 3.8-1.6 5.2M8 12a4 4 0 0 1 8 0"/></symbol>
+  <symbol id="i-import" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 11v6M9 14l3 3 3-3"/></symbol>
+  <symbol id="i-fill" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M7 12h.01M10.5 12h.01M14 12h.01M17 10v4"/></symbol>
+  <symbol id="i-health" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.4-7.5-10A4.2 4.2 0 0 1 12 7.6 4.2 4.2 0 0 1 19.5 10c0 5.6-7.5 10-7.5 10z"/><path d="M8 12h2.5l1-2 2 4 1-2H16"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-history" viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 3.5v5h5M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="12" height="12" rx="2.5"/><path d="M15.5 8.5V6a2.5 2.5 0 0 0-2.5-2.5H6A2.5 2.5 0 0 0 3.5 6v7A2.5 2.5 0 0 0 6 15.5h2.5"/></symbol>
+  <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 5.1A9.8 9.8 0 0 1 12 5c5.5 0 9 7 9 7a16 16 0 0 1-2.6 3.4M6.5 6.6C4.1 8.2 3 12 3 12s3.5 7 9 7a9 9 0 0 0 4.2-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="M8.5 7L3.5 12l5 5M15.5 7l5 5-5 5"/></symbol>
+  <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M2.5 9a14 14 0 0 1 19 0M5.5 12.5a9.5 9.5 0 0 1 13 0M8.8 16a4.8 4.8 0 0 1 6.4 0"/><circle cx="12" cy="19.5" r=".9"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></symbol>
+  <symbol id="i-bank" viewBox="0 0 24 24"><path d="M3 9.5L12 4l9 5.5M5 10v7M9.5 10v7M14.5 10v7M19 10v7M3.5 20h17"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3.5 7l8.5 6 8.5-6"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8M4 3.5V8h4.5M4 13a8 8 0 0 0 14.3 4.9L20 16M20 20.5V16h-4.5"/></symbol>
+</svg>
+
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="brand" href="index.html" aria-label="Tijori home">
+      <img class="brand-mark" src="assets/favicon.svg" alt="" width="44" height="44">
+      <span class="brand-text"><b>Tijori</b><span>Chaabi sirf aapke paas</span></span>
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="index.html#backup">Drive backup</a>
+      <a href="index.html#features">Features</a>
+      <a href="compare.html">Compare</a>
+      <a href="guide.html">Help guide</a>
+      <a href="index.html#faq">Questions</a>
+    </nav>
+    <a class="btn btn-haldi header-cta" href="index.html#get">Get the app</a>
+    <details class="menu">
+      <summary aria-label="Open menu"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg></summary>
+      <nav class="menu-panel" aria-label="Main">
+      <a href="index.html#backup">Drive backup</a>
+      <a href="index.html#features">Features</a>
+      <a href="compare.html">Compare</a>
+      <a href="guide.html">Help guide</a>
+      <a href="index.html#faq">Questions</a>
+        <a class="btn btn-haldi" href="index.html#get">Get the app</a>
+      </nav>
+    </details>
+  </div>
+</header>
+
+<main id="main">
+<section class="page-hero" aria-labelledby="t">
+  <div class="wrap">
+    <h1 id="t">Tijori next to the apps people pay for</h1>
+    <p class="lede">An honest side-by-side, including what Tijori doesn’t do. Prices are the publishers’ yearly prices in US dollars, checked in November 2026; they change, so confirm on their sites.</p>
+  </div>
+</section>
+<section class="sec sec-white" aria-labelledby="cmp-title">
+  <div class="wrap">
+    <h2 id="cmp-title" class="sr-only">Feature comparison</h2>
+    <div class="cmp-wrap" role="region" aria-labelledby="cmp-cap" tabindex="0">
+      <table class="cmp">
+        <caption id="cmp-cap">Scroll sideways on a phone to see every app.</caption>
+        <thead><tr><th scope="col"><span class="sr-only">Feature</span></th><th scope="col" class="us">Tijori</th><th scope="col">Google Password Manager</th><th scope="col">Bitwarden</th><th scope="col">1Password</th><th scope="col">KeePassDX</th></tr></thead>
+        <tbody>
+<tr><th scope="row">Price</th><td class="us"><span class="y">Free</span><small>No ads, no premium tier</small></td><td><span class="y">Free</span></td><td><span class="p">Free basic plan</span><small>Premium $19.80/year</small></td><td><span class="n">$47.88/year</span><small>Individual plan, no free plan</small></td><td><span class="y">Free</span></td></tr>
+<tr><th scope="row">Account needed</th><td class="us"><span class="y">No</span></td><td><span class="n">Google account</span></td><td><span class="n">Yes</span></td><td><span class="n">Yes</span></td><td><span class="y">No</span></td></tr>
+<tr><th scope="row">Where your passwords live</th><td class="us"><span class="y">Your phone</span><small>Encrypted copy in your own Drive</small></td><td><span class="p">Google’s servers</span><small>Encrypted, linked to your Google account</small></td><td><span class="p">Bitwarden’s servers</span><small>End-to-end encrypted</small></td><td><span class="p">1Password’s servers</span><small>End-to-end encrypted</small></td><td><span class="y">A file you keep</span><small>You choose where</small></td></tr>
+<tr><th scope="row">Survives uninstall or a lost phone</th><td class="us"><span class="y">Yes</span><small>Automatic Google Drive backup</small></td><td><span class="y">Yes</span></td><td><span class="y">Yes</span></td><td><span class="y">Yes</span></td><td><span class="p">If you copy the file yourself</span></td></tr>
+<tr><th scope="row">Restore with just your passphrase</th><td class="us"><span class="y">Yes</span><small>Default; can require the Secret Key too</small></td><td><span class="p">Google sign-in</span><small>Plus your phone or recovery email</small></td><td><span class="y">Email + master password</span></td><td><span class="p">Needs the Secret Key too</span><small>From the Emergency Kit</small></td><td><span class="y">File + master password</span></td></tr>
+<tr><th scope="row">Works fully offline</th><td class="us"><span class="y">Yes</span><small>No internet permission at all</small></td><td><span class="p">Mostly</span><small>Needs internet to sync</small></td><td><span class="p">Read offline</span><small>Needs internet to sync</small></td><td><span class="p">Read offline</span><small>Needs internet to sync</small></td><td><span class="y">Yes</span></td></tr>
+<tr><th scope="row">Use on a laptop too</th><td class="us"><span class="n">No</span><small>Phone-first by design</small></td><td><span class="y">Chrome everywhere</span></td><td><span class="y">All platforms</span></td><td><span class="y">All platforms</span></td><td><span class="p">Via KeePass apps</span><small>You sync the file</small></td></tr>
+<tr><th scope="row">Autofill in apps and Chrome</th><td class="us"><span class="y">Yes</span></td><td><span class="y">Yes</span></td><td><span class="y">Yes</span></td><td><span class="y">Yes</span></td><td><span class="y">Yes</span></td></tr>
+<tr><th scope="row">Fills only on the exact site</th><td class="us"><span class="y">Yes</span><small>Look-alike domains get nothing</small></td><td><span class="y">Yes</span></td><td><span class="p">Configurable</span><small>Match rules per login</small></td><td><span class="y">Yes</span></td><td><span class="p">Configurable</span></td></tr>
+<tr><th scope="row">Import from Google / Chrome</th><td class="us"><span class="y">Yes</span><small>Plus Bitwarden, 1Password, LastPass, Firefox</small></td><td><span class="na">It is Google</span></td><td><span class="y">Yes</span></td><td><span class="y">Yes</span></td><td><span class="p">Via desktop KeePass</span></td></tr>
+<tr><th scope="row">Weak and reused password check</th><td class="us"><span class="y">Yes</span><small>On the phone</small></td><td><span class="y">Yes</span></td><td><span class="p">Premium</span></td><td><span class="y">Yes</span></td><td><span class="n">No</span></td></tr>
+<tr><th scope="row">Breach alerts (leaked passwords)</th><td class="us"><span class="n">No</span><small>Would need internet</small></td><td><span class="y">Yes</span></td><td><span class="p">Premium</span></td><td><span class="y">Yes</span></td><td><span class="n">No</span></td></tr>
+<tr><th scope="row">Built-in 2-step codes</th><td class="us"><span class="y">Yes</span></td><td><span class="n">Separate app</span><small>Google Authenticator</small></td><td><span class="p">Premium</span></td><td><span class="y">Yes</span></td><td><span class="y">Yes</span></td></tr>
+<tr><th scope="row">Password history</th><td class="us"><span class="y">Last 5 per login</span></td><td><span class="n">No</span></td><td><span class="y">Yes</span></td><td><span class="y">Yes</span></td><td><span class="y">Yes</span></td></tr>
+<tr><th scope="row">Passkeys</th><td class="us"><span class="n">Not yet</span></td><td><span class="y">Yes</span></td><td><span class="y">Yes</span></td><td><span class="y">Yes</span></td><td><span class="p">Check your version</span></td></tr>
+<tr><th scope="row">Family can get in if something happens</th><td class="us"><span class="y">Nominee cards</span><small>Any 2 of 3 open the Family room, offline</small></td><td><span class="n">No</span><small>Inactive Account Manager is account-wide</small></td><td><span class="p">Premium</span><small>Emergency access</small></td><td><span class="n">No</span></td><td><span class="n">No</span></td></tr>
+<tr><th scope="row">Extra lock for banking</th><td class="us"><span class="y">Money room</span><small>Fingerprint each time, relocks itself</small></td><td><span class="n">No</span></td><td><span class="p">Per-item re-prompt</span></td><td><span class="n">No</span></td><td><span class="n">No</span></td></tr>
+<tr><th scope="row">Made for India</th><td class="us"><span class="y">Yes</span><small>UPI PIN hints, PPF/EPF/NPS, Aadhaar, PAN, हिन्दी</small></td><td><span class="p">Hindi UI</span></td><td><span class="n">No</span></td><td><span class="n">No</span></td><td><span class="n">No</span></td></tr>
+<tr><th scope="row">Open source</th><td class="us"><span class="y">Yes</span></td><td><span class="n">No</span></td><td><span class="y">Yes</span></td><td><span class="n">No</span></td><td><span class="y">Yes</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="legend-row"><span class="y">Yes</span><span class="p">Partly, or on a paid plan</span><span class="n">No</span></p>
+
+    <div class="take">
+      <div><h3>Pick Tijori if</h3><p>you mostly use your phone, want your Gmail and everyday passwords in one place for free, and want them back after an uninstall without trusting a password company’s server.</p></div>
+      <div><h3>Pick Bitwarden or 1Password if</h3><p>you need the same vault on a laptop and a phone every day, or want breach alerts and passkeys today. They sync through their own servers.</p></div>
+      <div><h3>Google Password Manager is fine if</h3><p>you’re happy keeping passwords inside your Google account. Its weak spot is that one Google account holds both your email and the keys to everything else.</p></div>
+    </div>
+  </div>
+</section>
+<section class="sec sec-paper" aria-labelledby="new-title">
+  <div class="wrap priv-split">
+    <div class="priv-side">
+      <h2 id="new-title" class="h-sec">What we took from the paid apps</h2>
+      <p class="sec-lede">Features that people pay for elsewhere, now in Tijori for free.</p>
+    </div>
+    <ul class="check-list">
+      <li><svg class="ic" aria-hidden="true"><use href="#i-cloud"/></svg><div><b>Automatic backup that survives uninstall</b><span>Like a cloud vault, but the copy sits in your own Google Drive and Tijori still never touches the internet.</span></div></li>
+      <li><svg class="ic" aria-hidden="true"><use href="#i-import"/></svg><div><b>One-step import</b><span>From Google Password Manager, Chrome, Bitwarden, 1Password, LastPass and Firefox, with app logins linked for autofill.</span></div></li>
+      <li><svg class="ic" aria-hidden="true"><use href="#i-history"/></svg><div><b>Password history</b><span>The last 5 passwords of every login, as in Bitwarden and 1Password.</span></div></li>
+      <li><svg class="ic" aria-hidden="true"><use href="#i-copy"/></svg><div><b>One-tap copy from the list</b><span>No need to open the item; the clipboard clears itself.</span></div></li>
+      <li><svg class="ic" aria-hidden="true"><use href="#i-key"/></svg><div><b>Passphrase-only restore</b><span>Simpler than 1Password’s Secret Key, with the stricter two-secret mode one switch away.</span></div></li>
+    </ul>
+  </div>
+</section>
+</main>
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div class="footer-about">
+      <p class="footer-name">Tijori</p>
+      <p>A password vault for Indian families. Your passwords stay locked on your phone, with an encrypted copy in your own Google Drive.</p>
+    </div>
+    <nav class="footer-col" aria-label="Product">
+      <h2>Product</h2>
+      <a href="index.html#backup">Google Drive backup</a>
+      <a href="index.html#features">Features</a>
+      <a href="compare.html">Compare with other apps</a>
+      <a href="index.html#get">Get the app</a>
+    </nav>
+    <nav class="footer-col" aria-label="Help">
+      <h2>Help</h2>
+      <a href="guide.html">Help guide</a>
+      <a href="guide.html#reinstall">Restore after reinstall</a>
+      <a href="privacy.html">Privacy policy</a>
+      <a href="https://github.com/souravroy0708/tijori-android" rel="noopener noreferrer">Source on GitHub</a>
+      <a href="mailto:tosourav6@gmail.com">tosourav6@gmail.com</a>
+    </nav>
+  </div>
+  <div class="wrap footer-base">
+    <p>Tijori will never ask for your passphrase, Secret Key or any password. Anyone who does is not us.</p>
+    <p>© <span data-year>2026</span> Tijori. Made in Hyderabad by Sourav Roy.</p>
+  </div>
+</footer>
+
+</body>
+</html>
